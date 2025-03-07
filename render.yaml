@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: lol-build-recommender
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: VITE_API_URL
+        value: /api
+      - key: VITE_DDRAGON_VERSION
+        value: 15.5.1
+      - key: VITE_DDRAGON_LOCALE
+        value: en_US
+      - key: VITE_DEFAULT_LANGUAGE
+        value: en
+      - key: VITE_SUPPORTED_LANGUAGES
+        value: en,fr,es,ko
+    healthCheckPath: /api/health
+    autoDeploy: false

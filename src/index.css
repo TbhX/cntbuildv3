@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-gold: #C8AA6E;
+  --color-gold-hover: #F0E6D2;
+  --color-blue: #0AC8B9;
+  --color-blue-hover: #0FF3E2;
+  --color-dark: #091428;
+  --color-darker: #070E1B;
+  --color-light: #F0E6D2;
+  --color-accent: #FF4655;
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-darker);
+  color: var(--color-light);
+  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-image: url('https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?q=80&w=2533&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: overlay;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(7, 14, 27, 0.92);
+  z-index: -1;
+}
+
+/* Buttons */
+.btn-gold {
+  @apply bg-gradient-to-r from-[#C8AA6E] to-[#785A28] text-[#091428] px-6 py-3 rounded-md font-bold hover:from-[#F0E6D2] hover:to-[#C8AA6E] transition-all duration-300 shadow-lg shadow-[#C8AA6E]/20 uppercase tracking-wider relative overflow-hidden;
+}
+
+.btn-blue {
+  @apply bg-gradient-to-r from-[#0AC8B9] to-[#0A7A8F] text-white px-6 py-3 rounded-md font-bold hover:from-[#0FF3E2] hover:to-[#0AC8B9] transition-all duration-300 shadow-lg shadow-[#0AC8B9]/20 uppercase tracking-wider;
+}
+
+/* Form elements */
+.input-lol {
+  @apply bg-[#1E2328]/80 backdrop-blur-sm border-[#785A28] text-[#F0E6D2] focus:ring-[#0AC8B9] focus:border-[#0AC8B9] rounded-md shadow-inner shadow-black/50;
+}
+
+/* Cards and panels */
+.champion-card {
+  @apply relative bg-gradient-to-b from-[#1E2328] to-[#091428] rounded-lg border border-[#785A28] p-2 transition-all duration-300 hover:border-[#0AC8B9] hover:shadow-lg hover:shadow-[#0AC8B9]/20 overflow-hidden;
+}
+
+.champion-card-selected {
+  @apply border-2 border-[#0AC8B9] shadow-lg shadow-[#0AC8B9]/30;
+}
+
+.panel {
+  @apply bg-[#1E2328]/80 backdrop-blur-sm border border-[#785A28] rounded-lg p-6 shadow-lg shadow-black/30;
+}
+
+.panel-accent {
+  @apply border-[#0AC8B9] shadow-[#0AC8B9]/20;
+}
+
+/* Typography */
+.section-title {
+  @apply text-xl font-bold text-[#C8AA6E] relative inline-block;
+  text-shadow: 0 0 10px rgba(200, 170, 110, 0.5);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.glow-blue {
+  text-shadow: 0 0 10px rgba(10, 200, 185, 0.8);
+}
+
+.glow-gold {
+  text-shadow: 0 0 10px rgba(200, 170, 110, 0.8);
+}
+
+/* Effects */
+.shadow-glow {
+  box-shadow: 0 0 10px rgba(10, 200, 185, 0.5);
+}
+
+.drop-shadow-glow {
+  filter: drop-shadow(0 0 3px rgba(10, 200, 185, 0.5));
+}
+
+/* Loading animation */
+.loading-spinner {
+  @apply animate-spin rounded-full border-t-2 border-[#0AC8B9] h-12 w-12;
+  box-shadow: 0 0 10px rgba(10, 200, 185, 0.5);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #091428;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #785A28;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C8AA6E;
+}
+
+/* Prose overrides for tooltips */
+.prose-invert {
+  --tw-prose-invert-body: #F0E6D2;
+  --tw-prose-invert-headings: #C8AA6E;
+  --tw-prose-invert-links: #0AC8B9;
+  --tw-prose-invert-bold: #F0E6D2;
+  --tw-prose-invert-counters: #785A28;
+  --tw-prose-invert-bullets: #785A28;
+  --tw-prose-invert-hr: #785A28;
+  --tw-prose-invert-quotes: #C8AA6E;
+  --tw-prose-invert-quote-borders: #785A28;
+  --tw-prose-invert-captions: #F0E6D2;
+  --tw-prose-invert-code: #0AC8B9;
+  --tw-prose-invert-pre-code: #F0E6D2;
+  --tw-prose-invert-pre-bg: #091428;
+  --tw-prose-invert-th-borders: #785A28;
+  --tw-prose-invert-td-borders: #785A28;
+}

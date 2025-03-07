@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "LoL 빌드 추천기",
+    "subtitle": "AI 기반 빌드",
+    "help": "도움말",
+    "reset": "초기화",
+    "disclaimer": "LoL Build Recommender는 Riot Games의 승인을 받지 않았으며 Riot Games 또는 League of Legends 제작 및 관리에 공식적으로 관여하는 사람들의 견해나 의견을 반영하지 않습니다. 게임을 사랑하는 하드스턱이지만 멋진 플레이어가 만들었습니다!",
+    "poweredBy": "Rzn 제공"
+  },
+  "tutorial": {
+    "welcome": {
+      "title": "LoL 빌드 추천기에 오신 것을 환영합니다!",
+      "content": "이 도구는 팀 구성을 기반으로 챔피언에 대한 최적의 빌드 추천을 제공합니다."
+    },
+    "step1": {
+      "title": "1단계: 팀 선택",
+      "content": "검색창을 사용하여 팀에 챔피언을 추가하세요."
+    },
+    "step2": {
+      "title": "2단계: 역할 선택",
+      "content": "챔피언의 역할을 선택하고 내 챔피언으로 지정하세요."
+    },
+    "step3": {
+      "title": "3단계: 적 챔피언 추가",
+      "content": "상대 팀 챔피언을 추가하여 맞춤형 카운터 빌드를 받으세요."
+    },
+    "step4": {
+      "title": "4단계: 빌드 생성",
+      "content": "'빌드 생성'을 클릭하여 매치업에 최적화된 AI 기반 추천을 받으세요."
+    },
+    "close": "닫기",
+    "next": "다음",
+    "previous": "이전",
+    "getStarted": "시작하기"
+  },
+  "search": {
+    "placeholder": "챔피언 검색... (/ 또는 Ctrl+F)",
+    "noResults": "챔피언을 찾을 수 없습니다",
+    "noChampions": "선택된 챔피언이 없습니다",
+    "useSearchBox": "위의 검색창을 사용하여 챔피언을 추가하세요"
+  },
+  "tabs": {
+    "byRole": "역할별",
+    "recent": "최근",
+    "popular": "인기",
+    "favorites": "즐겨찾기",
+    "all": "전체",
+    "championsFor": "{{role}} 라인 챔피언"
+  },
+  "quickGuide": {
+    "title": "빠른 가이드",
+    "step1": "팀에 챔피언 추가",
+    "step2": "챔피언과 역할 선택",
+    "step3": "적 챔피언 추가",
+    "step4": "최적의 빌드 생성"
+  },
+  "teams": {
+    "allies": "아군 팀",
+    "enemies": "적 팀",
+    "championsCount": "챔피언 {{count}}/5"
+  },
+  "yourChampion": {
+    "title": "내 챔피언",
+    "noRole": "역할 미선택",
+    "selectPrompt": "팀에서 내 챔피언 선택",
+    "instructions": "챔피언과 역할을 선택하여 맞춤형 빌드 추천 받기",
+    "firstStep": "먼저 위의 검색창을 사용하여 팀에 챔피언을 추가하세요"
+  },
+  "common": {
+    "analyzing": "분석 중...",
+    "generateBuild": "빌드 생성",
+    "selected": "선택됨",
+    "none": "없음",
+    "champions": "챔피언"
+  },
+  "status": {
+    "allies": "아군: {{count}}/5",
+    "enemies": "적군: {{count}}/5",
+    "champion": "챔피언: {{status}}",
+    "role": "역할: {{role}}"
+  },
+  "roles": {
+    "top": "탑",
+    "jungle": "정글",
+    "mid": "미드",
+    "adc": "원딜",
+    "support": "서포터"
+  }
+}

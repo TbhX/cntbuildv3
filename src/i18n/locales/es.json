@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Recomendador de Builds LoL",
+    "subtitle": "Builds potenciadas por IA",
+    "help": "Ayuda",
+    "reset": "Reiniciar",
+    "disclaimer": "LoL Build Recommender no está respaldado por Riot Games y no refleja las opiniones de Riot Games ni de ninguna persona involucrada en la producción o gestión de League of Legends. ¡Creado por un jugador hardstuck pero genial que ama el juego!",
+    "poweredBy": "Impulsado por Rzn"
+  },
+  "tutorial": {
+    "welcome": {
+      "title": "¡Bienvenido a LoL Build Recommender!",
+      "content": "Esta herramienta te ayuda a obtener recomendaciones óptimas de builds para tu campeón basadas en las composiciones de equipo."
+    },
+    "step1": {
+      "title": "Paso 1: Selecciona Tu Equipo",
+      "content": "Comienza añadiendo campeones a tu equipo usando el buscador."
+    },
+    "step2": {
+      "title": "Paso 2: Elige Tu Rol",
+      "content": "Selecciona un rol para tu campeón y márcalo como tu campeón."
+    },
+    "step3": {
+      "title": "Paso 3: Añade Campeones Enemigos",
+      "content": "Añade campeones al equipo enemigo para obtener una build adaptada para contrarrestarlos."
+    },
+    "step4": {
+      "title": "Paso 4: Genera la Build",
+      "content": "Haz clic en 'Generar Build' para obtener recomendaciones optimizadas por IA para tu partida."
+    },
+    "close": "Cerrar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "getStarted": "Empezar"
+  },
+  "search": {
+    "placeholder": "Buscar campeones... (/ o Ctrl+F)",
+    "noResults": "No se encontraron campeones",
+    "noChampions": "No hay campeones seleccionados",
+    "useSearchBox": "Usa el buscador de arriba para añadir campeones"
+  },
+  "tabs": {
+    "byRole": "Por Rol",
+    "recent": "Recientes",
+    "popular": "Populares",
+    "favorites": "Favoritos",
+    "all": "Todos",
+    "championsFor": "Campeones para {{role}}"
+  },
+  "quickGuide": {
+    "title": "Guía Rápida",
+    "step1": "Añade campeones a tu equipo",
+    "step2": "Selecciona tu campeón y rol",
+    "step3": "Añade campeones enemigos",
+    "step4": "Genera tu build óptima"
+  },
+  "teams": {
+    "allies": "Tu Equipo",
+    "enemies": "Equipo Enemigo",
+    "championsCount": "{{count}}/5 campeones"
+  },
+  "yourChampion": {
+    "title": "Tu Campeón",
+    "noRole": "Ningún rol seleccionado",
+    "selectPrompt": "Selecciona tu campeón de tu equipo",
+    "instructions": "Elige un campeón y rol para obtener recomendaciones personalizadas",
+    "firstStep": "Primero, añade campeones a tu equipo usando el buscador de arriba"
+  },
+  "common": {
+    "analyzing": "Analizando...",
+    "generateBuild": "Generar Build",
+    "selected": "Seleccionado",
+    "none": "Ninguno",
+    "champions": "campeones"
+  },
+  "status": {
+    "allies": "Aliados: {{count}}/5",
+    "enemies": "Enemigos: {{count}}/5",
+    "champion": "Campeón: {{status}}",
+    "role": "Rol: {{role}}"
+  },
+  "roles": {
+    "top": "Top",
+    "jungle": "Jungla",
+    "mid": "Mid",
+    "adc": "ADC",
+    "support": "Support"
+  }
+}

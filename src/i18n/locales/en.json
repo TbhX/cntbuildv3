@@ -1,0 +1,43 @@
+{
+  "app": {
+    "title": "LoL Build Recommender",
+    "subtitle": "AI-Powered Builds",
+    "help": "Help",
+    "reset": "Reset",
+    "disclaimer": "LoL Build Recommender is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends.",
+    "poweredBy": "Powered by Rzn"
+  },
+  "errors": {
+    "serverUnavailable": "Server is not available. Please try again later.",
+    "failedToGenerateBuild": "Failed to generate build recommendation. Please try again.",
+    "invalidBuildData": "Invalid build recommendation data received.",
+    "unknownError": "An unexpected error occurred. Please try again.",
+    "missingChampion": "Please select your champion first",
+    "missingRole": "Please select a role for your champion",
+    "missingTeams": "Please add champions to both teams"
+  },
+  "build": {
+    "items": "Items",
+    "runes": "Runes",
+    "strategy": "Strategy",
+    "buildOrder": "Build Order",
+    "powerSpikes": "Power Spikes",
+    "powerSpike1": "First item completion",
+    "powerSpike2": "Core items (2-3 items)",
+    "powerSpike3": "Full build potential",
+    "buildFocus": "Build Focus",
+    "buildFocus1": "Optimized for your role",
+    "buildFocus2": "Counter enemy composition",
+    "buildFocus3": "Synergize with team"
+  },
+  "common": {
+    "analyzing": "Analyzing...",
+    "generatingBuild": "Generating optimal build recommendation",
+    "generateBuild": "Generate Build",
+    "copyBuild": "Copy Build",
+    "copied": "Copied!",
+    "selected": "Selected",
+    "none": "None",
+    "champions": "champions"
+  }
+}
