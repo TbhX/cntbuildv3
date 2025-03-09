@@ -1,5 +1,4 @@
 import React from 'react';
-import { ImageWithFallback } from './ImageWithFallback';
 import type { Item } from '../types';
 import { useTranslation } from 'react-i18next';
 
@@ -13,12 +12,21 @@ interface ItemIconProps {
 export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIconProps) {
   const { t } = useTranslation();
   const [showDetails, setShowDetails] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
+
+  // Get DDragon version from environment
+  const ddragonVersion = import.meta.env.VITE_DDRAGON_VERSION || '15.5.1';
+
+  // Construct image URLs
+  const ddragonUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/item/${item.id}.png`;
+  const communityDragonUrl = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/${item.id}.png`;
+  const fallbackUrl = '/assets/items/default-item.png';
 
   return (
     <div 
       className="relative group"
-      onMouseEnter={() => setShowDetails(true)}
-      onMouseLeave={() => setShowDetails(false)}
+      onMouseEnter={() => showTooltip && setShowDetails(true)}
+      onMouseLeave={() => showTooltip && setShowDetails(false)}
     >
       <div className="relative bg-[#1E2328] rounded-lg border border-[#785A28] p-2 transition-all hover:border-[#C8AA6E] hover:shadow-lg">
         {index !== undefined && (
@@ -29,14 +37,20 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
         {item.mythic && (
           <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full z-10 shadow-glow" />
         )}
-        <div className="relative">
-          <ImageWithFallback
-            src={item.imageUrl}
-            fallbackSrc={item.localImageUrl || '/assets/default-item.png'}
+        <div className="relative w-full aspect-square">
+          <img
+            src={imageError ? communityDragonUrl : ddragonUrl}
             alt={item.name}
-            width={size}
-            height={size}
-            className="w-full rounded-lg transition-transform group-hover:scale-105"
+            style={{ width: size, height: size }}
+            className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105"
+            onError={(e) => {
+              if (!imageError) {
+                setImageError(true);
+                e.currentTarget.src = communityDragonUrl;
+              } else {
+                e.currentTarget.src = fallbackUrl;
+              }
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#091428]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
         </div>
@@ -46,14 +60,21 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
       {showTooltip && showDetails && (
         <div className="absolute z-20 w-64 bg-[#091428]/95 border border-[#785A28] rounded-lg p-3 shadow-lg -top-2 left-full ml-2">
           <div className="flex items-center gap-2 mb-2">
-            <ImageWithFallback
-              src={item.imageUrl}
-              fallbackSrc={item.localImageUrl || '/assets/default-item.png'}
-              alt={item.name}
-              width={24}
-              height={24}
-              className="rounded"
-            />
+            <div className="w-6 h-6 flex-shrink-0">
+              <img
+                src={imageError ? communityDragonUrl : ddragonUrl}
+                alt={item.name}
+                className="w-full h-full object-contain rounded"
+                onError={(e) => {
+                  if (!imageError) {
+                    setImageError(true);
+                    e.currentTarget.src = communityDragonUrl;
+                  } else {
+                    e.currentTarget.src = fallbackUrl;
+                  }
+                }}
+              />
+            </div>
             <h4 className="text-[#C8AA6E] font-semibold flex items-center gap-2">
               {item.name}
               {item.mythic && (

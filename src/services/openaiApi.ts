@@ -38,6 +38,17 @@ const getApiBaseUrl = () => {
 // Helper to create full API URLs
 const apiUrl = (endpoint: string) => `${getApiBaseUrl()}${endpoint}`;
 
+// Get current patch version
+const getCurrentPatch = () => {
+  return import.meta.env.VITE_DDRAGON_VERSION || '15.5.1';
+};
+
+// Get current season
+const getCurrentSeason = () => {
+  const currentDate = new Date();
+  return currentDate.getFullYear() - 2010;
+};
+
 // Add error handling and retry logic
 const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, backoff = 300) => {
   const fetchOptions = {
@@ -70,11 +81,15 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
 };
 
 // Translations for prompt templates
-const promptTemplates: Record<SupportedLanguage, (championName: string, role: string) => string> = {
-  en: (championName, role) => `Generate a focused League of Legends Season 14 build recommendation for ${championName} (${role}) in patch ${import.meta.env.VITE_DDRAGON_VERSION}.`,
-  fr: (championName, role) => `Générez une recommandation de build League of Legends Saison 14 pour ${championName} (${role}) dans la version ${import.meta.env.VITE_DDRAGON_VERSION}.`,
-  es: (championName, role) => `Genera una recomendación de build de League of Legends Temporada 14 para ${championName} (${role}) en el parche ${import.meta.env.VITE_DDRAGON_VERSION}.`,
-  ko: (championName, role) => `시즌 14 ${championName} (${role}) 빌드 추천을 생성합니다. 패치 ${import.meta.env.VITE_DDRAGON_VERSION}.`
+const promptTemplates: Record<SupportedLanguage, (championName: string, role: string, patch: string, season: number) => string> = {
+  en: (championName, role, patch, season) => 
+    `Generate a focused League of Legends Season ${season} build recommendation for ${championName} (${role}) in patch ${patch}.`,
+  fr: (championName, role, patch, season) => 
+    `Générez une recommandation de build League of Legends Saison ${season} pour ${championName} (${role}) dans la version ${patch}.`,
+  es: (championName, role, patch, season) => 
+    `Genera una recomendación de build de League of Legends Temporada ${season} para ${championName} (${role}) en el parche ${patch}.`,
+  ko: (championName, role, patch, season) => 
+    `시즌 ${season} ${championName} (${role}) 빌드 추천을 생성합니다. 패치 ${patch}.`
 };
 
 const contextTemplates: Record<SupportedLanguage, {
@@ -142,6 +157,10 @@ export async function generateBuildRecommendation(
       throw new Error("Please add champions to both teams");
     }
 
+    // Get current patch and season
+    const currentPatch = getCurrentPatch();
+    const currentSeason = getCurrentSeason();
+
     // Check API health first
     let healthCheckPassed = false;
     try {
@@ -160,8 +179,8 @@ export async function generateBuildRecommendation(
       const currentLang = (i18n.language as SupportedLanguage) || 'en';
       const templates = contextTemplates[currentLang];
       
-      // Create language-specific prompt
-      const prompt = `${promptTemplates[currentLang](playerChampion.name, playerRole || 'flex')}
+      // Create language-specific prompt with current patch and season
+      const prompt = `${promptTemplates[currentLang](playerChampion.name, playerRole || 'flex', currentPatch, currentSeason)}
 
 Context:
 - ${templates.allies}: ${allies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
@@ -224,7 +243,9 @@ Please respond in ${currentLang === 'en' ? 'English' : languages[currentLang].na
             playerChampion,
             playerRole,
             prompt,
-            language: currentLang
+            language: currentLang,
+            patch: currentPatch,
+            season: currentSeason
           })
         }, 2, 500);
 

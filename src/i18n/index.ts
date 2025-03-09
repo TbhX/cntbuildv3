@@ -26,8 +26,9 @@ i18n
   // Initialize i18next
   .init({
     resources,
-    fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'es', 'ko'],
+    lng: 'fr', // Set French as default language
+    fallbackLng: 'fr', // Fallback to French if translation is missing
+    supportedLngs: ['fr', 'en', 'es', 'ko'], // Reorder to prioritize French
     
     interpolation: {
       escapeValue: false // React already escapes by default
@@ -41,8 +42,17 @@ i18n
     // Detection configuration
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage']
+      caches: ['localStorage'],
+      lookupFromPathIndex: 0,
+      lookupFromSubdomainIndex: 0,
+      
+      // These are the correct options for the language detector
+      htmlTag: document.documentElement,
+      convertDetectedLanguage: (lng) => lng.split('-')[0],
     }
   });
+
+// Set document language attribute
+document.documentElement.lang = 'fr-FR';
 
 export default i18n;

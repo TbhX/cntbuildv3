@@ -188,21 +188,37 @@ ${recommendation.explanation}
                 <h3 className="section-title">{t('build.runes')}</h3>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {recommendation.runes.map((rune) => (
-                  <div key={`${rune.id}-${rune.name}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={rune.imageUrl} 
-                        alt={rune.name}
-                        className="w-12 h-12 rounded-lg"
-                      />
-                      <div>
-                        <h4 className="text-[#C8AA6E] font-semibold">{rune.name}</h4>
-                        <p className="text-[#F0E6D2]/80 text-sm mt-1">{rune.description}</p>
+                {recommendation.runes.map((rune) => {
+                  // Construct rune image URLs
+                  const ddragonUrl = `https://ddragon.leagueoflegends.com/cdn/img/${rune.icon}`;
+                  const communityDragonUrl = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${rune.id}.png`;
+                  const fallbackUrl = '/assets/runes/default-rune.png';
+
+                  return (
+                    <div key={`${rune.id}-${rune.name}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 flex-shrink-0">
+                          <img 
+                            src={ddragonUrl}
+                            alt={rune.name}
+                            className="w-full h-full object-contain rounded-lg"
+                            onError={(e) => {
+                              if (e.currentTarget.src !== communityDragonUrl) {
+                                e.currentTarget.src = communityDragonUrl;
+                              } else {
+                                e.currentTarget.src = fallbackUrl;
+                              }
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <h4 className="text-[#C8AA6E] font-semibold">{rune.name}</h4>
+                          <p className="text-[#F0E6D2]/80 text-sm mt-1">{rune.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
