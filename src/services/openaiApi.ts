@@ -1,4 +1,34 @@
 import type { BuildRecommendation, Champion, Role } from '../types';
+import { SupportedLanguage } from '../components/LanguageSelector';
+import i18n from '../i18n';
+
+// Language configuration
+const languages = {
+  en: {
+    name: 'English',
+    flag: 'https://flagcdn.com/w80/gb.png',
+    flagAlt: 'UK flag',
+    locale: 'en-US'
+  },
+  fr: {
+    name: 'Français',
+    flag: 'https://flagcdn.com/w80/fr.png',
+    flagAlt: 'French flag',
+    locale: 'fr-FR'
+  },
+  es: {
+    name: 'Español',
+    flag: 'https://flagcdn.com/w80/es.png',
+    flagAlt: 'Spanish flag',
+    locale: 'es-ES'
+  },
+  ko: {
+    name: '한국어',
+    flag: 'https://flagcdn.com/w80/kr.png',
+    flagAlt: 'South Korean flag',
+    locale: 'ko-KR'
+  }
+} as const;
 
 // Get the base API URL based on environment
 const getApiBaseUrl = () => {
@@ -39,6 +69,65 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
   }
 };
 
+// Translations for prompt templates
+const promptTemplates: Record<SupportedLanguage, (championName: string, role: string) => string> = {
+  en: (championName, role) => `Generate a focused League of Legends Season 14 build recommendation for ${championName} (${role}) in patch ${import.meta.env.VITE_DDRAGON_VERSION}.`,
+  fr: (championName, role) => `Générez une recommandation de build League of Legends Saison 14 pour ${championName} (${role}) dans la version ${import.meta.env.VITE_DDRAGON_VERSION}.`,
+  es: (championName, role) => `Genera una recomendación de build de League of Legends Temporada 14 para ${championName} (${role}) en el parche ${import.meta.env.VITE_DDRAGON_VERSION}.`,
+  ko: (championName, role) => `시즌 14 ${championName} (${role}) 빌드 추천을 생성합니다. 패치 ${import.meta.env.VITE_DDRAGON_VERSION}.`
+};
+
+const contextTemplates: Record<SupportedLanguage, {
+  allies: string;
+  enemies: string;
+  guidelines: string[];
+}> = {
+  en: {
+    allies: "Allies",
+    enemies: "Enemies",
+    guidelines: [
+      "Focus on Season 14 item changes and new build paths",
+      "Consider team composition synergies and counter-building",
+      "Adapt build order based on enemy threats and team needs",
+      "Optimize for role requirements",
+      "Include core items and situational choices"
+    ]
+  },
+  fr: {
+    allies: "Alliés",
+    enemies: "Ennemis",
+    guidelines: [
+      "Concentrez-vous sur les changements d'objets de la Saison 14",
+      "Tenez compte des synergies de composition d'équipe",
+      "Adaptez l'ordre de construction selon les menaces ennemies",
+      "Optimisez pour les exigences du rôle",
+      "Incluez les objets principaux et situationnels"
+    ]
+  },
+  es: {
+    allies: "Aliados",
+    enemies: "Enemigos",
+    guidelines: [
+      "Enfócate en los cambios de objetos de la Temporada 14",
+      "Considera las sinergias de la composición del equipo",
+      "Adapta el orden de construcción según las amenazas enemigas",
+      "Optimiza para los requisitos del rol",
+      "Incluye objetos principales y situacionales"
+    ]
+  },
+  ko: {
+    allies: "아군",
+    enemies: "적군",
+    guidelines: [
+      "시즌 14 아이템 변경 사항과 새로운 빌드 경로에 집중",
+      "팀 구성 시너지와 카운터 빌드 고려",
+      "적의 위협과 팀 요구 사항에 따라 빌드 순서 조정",
+      "역할 요구 사항에 맞게 최적화",
+      "핵심 아이템과 상황별 선택 포함"
+    ]
+  }
+};
+
 export async function generateBuildRecommendation(
   allies: Champion[],
   enemies: Champion[],
@@ -68,12 +157,15 @@ export async function generateBuildRecommendation(
     }
 
     if (healthCheckPassed) {
-      // Optimized prompt for faster and more focused responses
-      const prompt = `Generate a focused League of Legends Season 14 build recommendation for ${playerChampion.name} (${playerRole || 'flex'}) in patch ${import.meta.env.VITE_DDRAGON_VERSION}.
+      const currentLang = (i18n.language as SupportedLanguage) || 'en';
+      const templates = contextTemplates[currentLang];
+      
+      // Create language-specific prompt
+      const prompt = `${promptTemplates[currentLang](playerChampion.name, playerRole || 'flex')}
 
 Context:
-- Allies: ${allies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
-- Enemies: ${enemies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
+- ${templates.allies}: ${allies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
+- ${templates.enemies}: ${enemies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
 
 Required JSON structure:
 {
@@ -118,13 +210,10 @@ Required JSON structure:
 }
 
 Build Guidelines:
-1. Focus on Season 14 item changes and new build paths
-2. Consider team composition synergies and counter-building
-3. Adapt build order based on enemy threats and team needs
-4. Optimize for ${playerRole || 'flex'} role requirements
-5. Include core items and situational choices
+${templates.guidelines.map((g, i) => `${i + 1}. ${g}`).join('\n')}
 
-Keep responses concise and focused on actionable insights.`;
+Keep responses concise and focused on actionable insights.
+Please respond in ${currentLang === 'en' ? 'English' : languages[currentLang].name}.`;
 
       try {
         const response = await fetchWithRetry(apiUrl('/build-recommendation'), {
@@ -134,7 +223,8 @@ Keep responses concise and focused on actionable insights.`;
             enemies,
             playerChampion,
             playerRole,
-            prompt
+            prompt,
+            language: currentLang
           })
         }, 2, 500);
 

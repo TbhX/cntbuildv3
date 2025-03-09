@@ -15,7 +15,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      cacheTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes
     },
   },
 });
@@ -202,7 +202,7 @@ function App() {
 
     const steps = [
       {
-        title: "Welcome to LoL Build Recommender!",
+        title: "Welcome to I Can't Build!",
         content: "This tool helps you get optimal build recommendations for your champion based on team compositions.",
         position: "center"
       },
@@ -301,7 +301,7 @@ function App() {
               <Sword className="h-8 w-8 text-[#091428]" />
             </div>
             <h1 className="text-3xl font-bold glow-gold tracking-wider">
-              LoL Build Recommender
+              I Can't Build
             </h1>
             <div className="ml-auto flex items-center gap-3">
               <LanguageSelector />
@@ -325,7 +325,7 @@ function App() {
               
               <div className="hidden md:flex items-center gap-1 bg-[#1E2328]/80 px-3 py-1 rounded-full border border-[#785A28]">
                 <Sparkles className="h-4 w-4 text-[#C8AA6E]" />
-                <span className="text-sm text-[#C8AA6E]">AI-Powered Build Recommendations</span>
+             
               </div>
             </div>
           </div>
