@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BuildRecommendation } from '../types';
+import type { BuildRecommendation as BuildRecommendationType } from '../types';
 import { RoleIcon } from './RoleIcon';
 import { ItemIcon } from './ItemIcon';
 import { ImageWithFallback } from './ImageWithFallback';
@@ -7,7 +7,7 @@ import { Sword, Shield, Sparkles, Award, Copy, Check, Info, Clock, ArrowRight, T
 import { useTranslation } from 'react-i18next';
 
 interface BuildRecommendationProps {
-  recommendation: BuildRecommendation | null;
+  recommendation: BuildRecommendationType | null;
   isLoading: boolean;
 }
 
@@ -89,7 +89,7 @@ ${recommendation.explanation}
                 {recommendation.forRole && (
                   <div className="flex items-center mt-2 bg-[#0AC8B9]/20 px-3 py-1 rounded-full inline-block border border-[#0AC8B9]/30">
                     <RoleIcon role={recommendation.forRole} size={20} className="role-icon" />
-                    <span className="ml-2 text-[#0AC8B9] font-semibold capitalize">{recommendation.forRole} Lane</span>
+                    <span className="ml-2 text-[#0AC8B9] font-semibold capitalize">{recommendation.forRole}</span>
                   </div>
                 )}
               </div>

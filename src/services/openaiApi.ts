@@ -80,12 +80,118 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
   }
 };
 
+const buildOrderTemplate = {
+  fr: {
+    phases: {
+      start: "Début de partie",
+      early: "Phase de lane",
+      mid: "Phase de groupe",
+      late: "Phase finale"
+    },
+    itemTypes: {
+      starting: "Objets de départ",
+      core: "Objets principaux",
+      situational: "Objets situationnels",
+      boots: "Bottes",
+      mythic: "Item mythique"
+    },
+    buildConsiderations: {
+      gameState: {
+        ahead: "En avance",
+        even: "Égalité",
+        behind: "En retard"
+      },
+      teamComp: "Adaptation à la composition",
+      powerSpikes: "Pics de puissance",
+      objectives: "Contrôle des objectifs"
+    }
+  }
+};
+
 // Translations for prompt templates
 const promptTemplates: Record<SupportedLanguage, (championName: string, role: string, patch: string, season: number) => string> = {
   en: (championName, role, patch, season) => 
     `Generate a focused League of Legends Season ${season} build recommendation for ${championName} (${role}) in patch ${patch}.`,
-  fr: (championName, role, patch, season) => 
-    `Générez une recommandation de build League of Legends Saison ${season} pour ${championName} (${role}) dans la version ${patch}. Expliquez en détail les synergies d'équipe et comment le build s'adapte à la composition adverse.`,
+  fr: (championName, role, patch, season) => `
+Générez une recommandation de build League of Legends Saison ${season} pour ${championName} (${role}) dans la version ${patch}.
+
+Structure détaillée du build par phase de jeu:
+
+1. ${buildOrderTemplate.fr.phases.start} (0-5 min):
+   - ${buildOrderTemplate.fr.itemTypes.starting}
+   - Justification des choix initiaux
+   - Adaptation selon le matchup
+
+2. ${buildOrderTemplate.fr.phases.early} (5-15 min):
+   - Premier retour en base
+   - ${buildOrderTemplate.fr.itemTypes.boots}
+   - Composants prioritaires
+   - Adaptation selon l'état de la lane
+
+3. ${buildOrderTemplate.fr.phases.mid} (15-25 min):
+   - ${buildOrderTemplate.fr.itemTypes.mythic}
+   - ${buildOrderTemplate.fr.itemTypes.core} (2-3 items)
+   - Adaptation aux objectifs
+   - Réponse aux menaces ennemies
+
+4. ${buildOrderTemplate.fr.phases.late} (25+ min):
+   - Build final optimal
+   - ${buildOrderTemplate.fr.itemTypes.situational}
+   - Adaptations selon:
+     • État de la partie
+     • Composition ennemie
+     • Conditions de victoire
+
+Pour chaque phase, expliquez:
+- Les choix d'items et leur ordre
+- Les synergies avec l'équipe
+- Les contres aux menaces ennemies
+- Les variations selon l'état de la partie
+
+Required JSON structure:
+{
+  "build_order": {
+    "starting_phase": {
+      "items": [{"id": string, "name": string, "reason": string}],
+      "timing": string,
+      "adaptations": {
+        "matchup_specific": string,
+        "team_comp": string
+      }
+    },
+    "early_phase": {
+      "first_back": {
+        "ideal_gold": number,
+        "priority_items": [{"id": string, "name": string, "reason": string}],
+        "variations": {
+          "ahead": string,
+          "even": string,
+          "behind": string
+        }
+      },
+      "core_progression": [{"id": string, "name": string, "timing": string, "reason": string}]
+    },
+    "mid_phase": {
+      "mythic_timing": string,
+      "core_items": [{"id": string, "name": string, "reason": string}],
+      "objectives_focus": string,
+      "team_adaptations": string
+    },
+    "late_phase": {
+      "final_build": [{"id": string, "name": string, "reason": string}],
+      "situational_choices": [{"id": string, "name": string, "when": string}],
+      "win_condition_items": string
+    }
+  }
+}
+
+Assurez-vous que chaque recommandation d'item est:
+- Justifiée par rapport à la phase de jeu
+- Adaptée à la composition des équipes
+- Accompagnée d'explications sur le timing optimal
+- Flexible selon l'évolution de la partie
+
+Répondez en français avec des explications claires et détaillées.`,
   es: (championName, role, patch, season) => 
     `Genera una recomendación de build de League of Legends Temporada ${season} para ${championName} (${role}) en el parche ${patch}.`,
   ko: (championName, role, patch, season) => 
