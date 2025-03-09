@@ -103,13 +103,30 @@ body::before {
   box-shadow: 0 0 10px rgba(10, 200, 185, 0.5);
 }
 
-/* Scrollbar */
+/* Custom scrollbar styles */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thumb-gold {
+    scrollbar-color: #785A28 transparent;
+  }
+
+  .scrollbar-track-dark {
+    scrollbar-track-color: #1E2328;
+  }
+}
+
+/* Webkit scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #091428;
+  background: #1E2328;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {

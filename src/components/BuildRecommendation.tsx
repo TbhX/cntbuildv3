@@ -20,15 +20,15 @@ export function BuildRecommendation({ recommendation, isLoading }: BuildRecommen
     if (!recommendation) return;
     
     const buildText = `
-Build for ${recommendation.forChampion?.name} (${recommendation.forRole})
+Build pour ${recommendation.forChampion?.name} (${recommendation.forRole})
 
-ITEMS (Build Order):
+OBJETS (Ordre de construction):
 ${recommendation.items.map((item, index) => `${index + 1}. ${item.name}: ${item.description}`).join('\n')}
 
 RUNES:
 ${recommendation.runes.map(rune => `${rune.name}: ${rune.description}`).join('\n')}
 
-BUILD STRATEGY:
+STRATÉGIE:
 ${recommendation.explanation}
     `.trim();
     
@@ -144,33 +144,40 @@ ${recommendation.explanation}
                 <Clock className="h-5 w-5 text-[#C8AA6E]" />
                 <h3 className="section-title">{t('build.buildOrder')}</h3>
               </div>
-              <div className="flex items-center gap-4 overflow-x-auto pb-4">
+              <div className="grid grid-cols-1 gap-4">
                 {recommendation.items.map((item, index) => (
-                  <div key={`${item.id}-${index}`} className="flex-shrink-0">
-                    <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors w-[200px]">
+                  <div key={`${item.id}-${index}`} className="relative">
+                    <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className="flex-shrink-0">
-                          <ItemIcon item={item} index={index} showTooltip={true} />
+                        <div className="relative flex-shrink-0">
+                          <ItemIcon 
+                            item={item} 
+                            index={index} 
+                            showTooltip={true}
+                            size={64}
+                          />
                         </div>
                         <div className="flex-grow min-w-0">
-                          <h4 className="text-[#C8AA6E] font-semibold truncate">{item.name}</h4>
-                          <p className="text-[#F0E6D2]/80 text-sm mt-1 line-clamp-2">{item.description}</p>
+                          <h4 className="text-[#C8AA6E] font-semibold text-lg">{item.name}</h4>
+                          <p className="text-[#F0E6D2]/80 mt-2">{item.description}</p>
                           {item.gold && (
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#785A28]/30">
                               <img 
                                 src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
                                 alt="gold"
-                                className="w-4 h-4"
+                                className="w-5 h-5"
                               />
-                              <span className="text-[#C8AA6E]">{item.gold}</span>
+                              <span className="text-[#C8AA6E] font-semibold">{item.gold}</span>
                             </div>
                           )}
                         </div>
                       </div>
                     </div>
                     {index < recommendation.items.length - 1 && (
-                      <div className="flex items-center justify-center mx-2">
-                        <ArrowRight className="h-6 w-6 text-[#0AC8B9]" />
+                      <div className="absolute left-8 -bottom-4 transform translate-x-1/2 z-10">
+                        <div className="bg-[#0AC8B9] rounded-full p-1">
+                          <ArrowRight className="h-5 w-5 text-[#091428]" />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -187,38 +194,24 @@ ${recommendation.explanation}
                 <Shield className="h-5 w-5 text-[#C8AA6E]" />
                 <h3 className="section-title">{t('build.runes')}</h3>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {recommendation.runes.map((rune) => {
-                  // Construct rune image URLs
-                  const ddragonUrl = `https://ddragon.leagueoflegends.com/cdn/img/${rune.icon}`;
-                  const communityDragonUrl = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${rune.id}.png`;
-                  const fallbackUrl = '/assets/runes/default-rune.png';
-
-                  return (
-                    <div key={`${rune.id}-${rune.name}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 flex-shrink-0">
-                          <img 
-                            src={ddragonUrl}
-                            alt={rune.name}
-                            className="w-full h-full object-contain rounded-lg"
-                            onError={(e) => {
-                              if (e.currentTarget.src !== communityDragonUrl) {
-                                e.currentTarget.src = communityDragonUrl;
-                              } else {
-                                e.currentTarget.src = fallbackUrl;
-                              }
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <h4 className="text-[#C8AA6E] font-semibold">{rune.name}</h4>
-                          <p className="text-[#F0E6D2]/80 text-sm mt-1">{rune.description}</p>
-                        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recommendation.runes.map((rune) => (
+                  <div key={`${rune.id}-${rune.name}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-16 h-16 bg-[#091428]/50 rounded-lg p-2">
+                        <img 
+                          src={rune.imageUrl} 
+                          alt={rune.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="text-[#C8AA6E] font-semibold text-lg">{rune.name}</h4>
+                        <p className="text-[#F0E6D2]/80 mt-2">{rune.description}</p>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -231,7 +224,7 @@ ${recommendation.explanation}
               <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                 <div className="flex items-center gap-2 mb-4">
                   <Target className="h-5 w-5 text-[#C8AA6E]" />
-                  <h3 className="text-xl font-bold text-[#C8AA6E]">Team Analysis</h3>
+                  <h3 className="text-xl font-bold text-[#C8AA6E]">Analyse d'équipe</h3>
                 </div>
                 <div className="prose prose-invert max-w-none">
                   <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
@@ -248,7 +241,7 @@ ${recommendation.explanation}
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Flame className="h-5 w-5 text-[#FF4655]" />
-                    <h3 className="text-xl font-bold text-[#FF4655]">Early Game</h3>
+                    <h3 className="text-xl font-bold text-[#FF4655]">Début de partie</h3>
                   </div>
                   <div className="prose prose-invert max-w-none">
                     <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
@@ -263,7 +256,7 @@ ${recommendation.explanation}
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
-                    <h3 className="text-xl font-bold text-[#0AC8B9]">Mid Game</h3>
+                    <h3 className="text-xl font-bold text-[#0AC8B9]">Milieu de partie</h3>
                   </div>
                   <div className="prose prose-invert max-w-none">
                     <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
@@ -278,7 +271,7 @@ ${recommendation.explanation}
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Zap className="h-5 w-5 text-[#C8AA6E]" />
-                    <h3 className="text-xl font-bold text-[#C8AA6E]">Late Game</h3>
+                    <h3 className="text-xl font-bold text-[#C8AA6E]">Fin de partie</h3>
                   </div>
                   <div className="prose prose-invert max-w-none">
                     <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
@@ -294,7 +287,7 @@ ${recommendation.explanation}
               <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                 <div className="flex items-center gap-2 mb-4">
                   <Waypoints className="h-5 w-5 text-[#0AC8B9]" />
-                  <h3 className="text-xl font-bold text-[#0AC8B9]">Build Path</h3>
+                  <h3 className="text-xl font-bold text-[#0AC8B9]">Progression du build</h3>
                 </div>
                 <div className="prose prose-invert max-w-none">
                   <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
