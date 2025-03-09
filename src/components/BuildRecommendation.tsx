@@ -3,7 +3,7 @@ import type { BuildRecommendation as BuildRecommendationType } from '../types';
 import { RoleIcon } from './RoleIcon';
 import { ItemIcon } from './ItemIcon';
 import { ImageWithFallback } from './ImageWithFallback';
-import { Sword, Shield, Sparkles, Award, Copy, Check, Info, Clock, ArrowRight, Target, Crosshair, Zap, Flame, Waypoints } from 'lucide-react';
+import { Sword, Shield, Sparkles, Award, Copy, Check, Info, Clock, ArrowRight, Target, Crosshair, Zap, Flame, Waypoints, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface BuildRecommendationProps {
@@ -67,6 +67,14 @@ ${recommendation.explanation}
     else if (part.startsWith('⚔️ Build Path:')) acc.buildPath = part;
     return acc;
   }, {} as Record<string, string>);
+
+  // Group items by game phase
+  const buildPhases = recommendation.build_order ? {
+    starting: recommendation.build_order.starting_phase?.items || [],
+    early: recommendation.build_order.early_phase?.core_progression || [],
+    mid: recommendation.build_order.mid_phase?.core_items || [],
+    late: recommendation.build_order.late_phase?.final_build || []
+  } : null;
 
   return (
     <div className="panel panel-accent animated-bg space-y-6">
@@ -138,52 +146,156 @@ ${recommendation.explanation}
       {/* Content based on active tab */}
       <div className="mt-4">
         {activeTab === 'items' && (
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-5 w-5 text-[#C8AA6E]" />
-                <h3 className="section-title">{t('build.buildOrder')}</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                {recommendation.items.map((item, index) => (
-                  <div key={`${item.id}-${index}`} className="relative">
-                    <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="relative flex-shrink-0">
-                          <ItemIcon 
-                            item={item} 
-                            index={index} 
-                            showTooltip={true}
-                            size={64}
-                          />
-                        </div>
-                        <div className="flex-grow min-w-0">
-                          <h4 className="text-[#C8AA6E] font-semibold text-lg">{item.name}</h4>
-                          <p className="text-[#F0E6D2]/80 mt-2">{item.description}</p>
-                          {item.gold && (
-                            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#785A28]/30">
-                              <img 
-                                src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
-                                alt="gold"
-                                className="w-5 h-5"
-                              />
-                              <span className="text-[#C8AA6E] font-semibold">{item.gold}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+          <div className="space-y-8">
+            {/* Build phases */}
+            {buildPhases ? (
+              <>
+                {/* Starting items */}
+                {buildPhases.starting.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-[#C8AA6E]" />
+                      <h3 className="text-xl font-bold text-[#C8AA6E]">Objets de départ (0-5 min)</h3>
                     </div>
-                    {index < recommendation.items.length - 1 && (
-                      <div className="absolute left-8 -bottom-4 transform translate-x-1/2 z-10">
-                        <div className="bg-[#0AC8B9] rounded-full p-1">
-                          <ArrowRight className="h-5 w-5 text-[#091428]" />
+                    <div className="grid grid-cols-1 gap-4">
+                      {buildPhases.starting.map((item, index) => (
+                        <div key={`start-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                          <div className="flex items-center gap-4">
+                            <ItemIcon item={item} showTooltip={true} size={48} />
+                            <div>
+                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
+                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Early game items */}
+                {buildPhases.early.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Flame className="h-5 w-5 text-[#FF4655]" />
+                      <h3 className="text-xl font-bold text-[#FF4655]">Phase de lane (5-15 min)</h3>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                      {buildPhases.early.map((item, index) => (
+                        <div key={`early-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                          <div className="flex items-center gap-4">
+                            <ItemIcon item={item} showTooltip={true} size={48} />
+                            <div>
+                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
+                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
+                              {item.timing && (
+                                <div className="flex items-center gap-1 mt-2 text-xs text-[#0AC8B9]">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{item.timing}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mid game items */}
+                {buildPhases.mid.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
+                      <h3 className="text-xl font-bold text-[#0AC8B9]">Phase de groupe (15-25 min)</h3>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                      {buildPhases.mid.map((item, index) => (
+                        <div key={`mid-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                          <div className="flex items-center gap-4">
+                            <ItemIcon item={item} showTooltip={true} size={48} />
+                            <div>
+                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
+                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Late game items */}
+                {buildPhases.late.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-[#C8AA6E]" />
+                      <h3 className="text-xl font-bold text-[#C8AA6E]">Phase finale (25+ min)</h3>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                      {buildPhases.late.map((item, index) => (
+                        <div key={`late-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                          <div className="flex items-center gap-4">
+                            <ItemIcon item={item} showTooltip={true} size={48} />
+                            <div>
+                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
+                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              // Fallback to simple item list if no build phases
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Clock className="h-5 w-5 text-[#C8AA6E]" />
+                  <h3 className="section-title">Ordre de construction</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  {recommendation.items.map((item, index) => (
+                    <div key={`${item.id}-${index}`} className="relative">
+                      <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="relative flex-shrink-0">
+                            <ItemIcon 
+                              item={item} 
+                              index={index} 
+                              showTooltip={true}
+                              size={64}
+                            />
+                          </div>
+                          <div className="flex-grow min-w-0">
+                            <h4 className="text-[#C8AA6E] font-semibold text-lg">{item.name}</h4>
+                            <p className="text-[#F0E6D2]/80 mt-2">{item.description}</p>
+                            {item.gold && (
+                              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#785A28]/30">
+                                <img 
+                                  src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
+                                  alt="gold"
+                                  className="w-5 h-5"
+                                />
+                                <span className="text-[#C8AA6E] font-semibold">{item.gold}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {index < recommendation.items.length - 1 && (
+                        <div className="absolute left-8 -bottom-4 transform translate-x-1/2 z-10">
+                          <div className="bg-[#0AC8B9] rounded-full p-1">
+                            <ArrowRight className="h-5 w-5 text-[#091428]" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -192,7 +304,7 @@ ${recommendation.explanation}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Shield className="h-5 w-5 text-[#C8AA6E]" />
-                <h3 className="section-title">{t('build.runes')}</h3>
+                <h3 className="section-title">Runes</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {recommendation.runes.map((rune) => (
