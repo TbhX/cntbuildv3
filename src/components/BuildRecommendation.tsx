@@ -11,7 +11,7 @@ interface BuildRecommendationProps {
   isLoading: boolean;
 }
 
-function BuildRecommendationComponent({ recommendation, isLoading }: BuildRecommendationProps) {
+export function BuildRecommendation({ recommendation, isLoading }: BuildRecommendationProps) {
   const { t } = useTranslation();
   const [copied, setCopied] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'items' | 'runes' | 'strategy'>('items');
@@ -20,15 +20,15 @@ function BuildRecommendationComponent({ recommendation, isLoading }: BuildRecomm
     if (!recommendation) return;
     
     const buildText = `
-Build for ${recommendation.forChampion?.name} (${recommendation.forRole})
+Build pour ${recommendation.forChampion?.name} (${recommendation.forRole})
 
-ITEMS (Build Order):
+OBJETS (Ordre de construction):
 ${recommendation.items.map((item, index) => `${index + 1}. ${item.name}: ${item.description}`).join('\n')}
 
 RUNES:
 ${recommendation.runes.map(rune => `${rune.name}: ${rune.description}`).join('\n')}
 
-BUILD STRATEGY:
+STRATÉGIE:
 ${recommendation.explanation}
     `.trim();
     
@@ -55,10 +55,10 @@ ${recommendation.explanation}
   }
 
   const tabs = [
-    { id: 'items', label: t('build.items'), icon: <Sword className="h-4 w-4" /> },
-    { id: 'runes', label: t('build.runes'), icon: <Shield className="h-4 w-4" /> },
-    { id: 'strategy', label: t('build.strategy'), icon: <Sparkles className="h-4 w-4" /> }
-  ] as const;
+    { id: 'items' as const, label: t('build.items'), icon: <Sword className="h-4 w-4" /> },
+    { id: 'runes' as const, label: t('build.runes'), icon: <Shield className="h-4 w-4" /> },
+    { id: 'strategy' as const, label: t('build.strategy'), icon: <Sparkles className="h-4 w-4" /> }
+  ];
 
   // Helper function to safely check array length
   const hasItems = (arr?: any[]): arr is any[] => Array.isArray(arr) && arr.length > 0;
@@ -145,7 +145,7 @@ ${recommendation.explanation}
                 <Clock className="h-5 w-5 text-[#C8AA6E]" />
                 <h3 className="section-title">{t('build.buildOrder')}</h3>
               </div>
-              <div className="flex items-center gap-4 overflow-x-auto pb-4">
+              <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gold scrollbar-track-dark">
                 {recommendation.items.map((item, index) => (
                   <div key={`${item.id}-${index}`} className="flex-shrink-0">
                     <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors w-[200px]">
@@ -186,7 +186,7 @@ ${recommendation.explanation}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Shield className="h-5 w-5 text-[#C8AA6E]" />
-                <h3 className="section-title">Runes</h3>
+                <h3 className="section-title">{t('build.runes')}</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {renderList(recommendation.runes, (rune, index) => (
@@ -207,7 +207,7 @@ ${recommendation.explanation}
                           <h4 className="text-[#C8AA6E] font-semibold text-lg">{rune.name}</h4>
                           {rune.type === 'keystone' && (
                             <span className="px-2 py-0.5 bg-[#0AC8B9]/20 text-[#0AC8B9] text-xs rounded-full">
-                              Keystone
+                              {t('build.runeTypes.keystone')}
                             </span>
                           )}
                         </div>
@@ -219,7 +219,9 @@ ${recommendation.explanation}
                               alt={rune.path}
                               className="w-4 h-4"
                             />
-                            <span className="text-xs text-[#C8AA6E] capitalize">{rune.path}</span>
+                            <span className="text-xs text-[#C8AA6E] capitalize">
+                              {t(`build.runePaths.${rune.path.toLowerCase()}`)}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -240,12 +242,12 @@ ${recommendation.explanation}
               <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                 <div className="flex items-center gap-2 mb-4">
                   <Target className="h-5 w-5 text-[#C8AA6E]" />
-                  <h3 className="text-xl font-bold text-[#C8AA6E]">Analyse d'équipe</h3>
+                  <h3 className="text-xl font-bold text-[#C8AA6E]">{t('build.teamAnalysis.title')}</h3>
                 </div>
                 <div className="space-y-4">
                   {hasItems(recommendation.team_analysis?.ally_strengths) && (
                     <div>
-                      <h4 className="text-[#0AC8B9] font-semibold mb-2">Forces de l'équipe</h4>
+                      <h4 className="text-[#0AC8B9] font-semibold mb-2">{t('build.teamAnalysis.allyStrengths')}</h4>
                       <ul className="space-y-2">
                         {renderList(recommendation.team_analysis.ally_strengths, (strength, index) => (
                           <li key={index} className="flex items-start gap-2 text-[#F0E6D2]/90">
@@ -259,7 +261,7 @@ ${recommendation.explanation}
                   
                   {hasItems(recommendation.team_analysis?.enemy_threats) && (
                     <div>
-                      <h4 className="text-[#FF4655] font-semibold mb-2">Menaces ennemies</h4>
+                      <h4 className="text-[#FF4655] font-semibold mb-2">{t('build.teamAnalysis.enemyThreats')}</h4>
                       <ul className="space-y-2">
                         {renderList(recommendation.team_analysis.enemy_threats, (threat, index) => (
                           <li key={index} className="flex items-start gap-2 text-[#F0E6D2]/90">
@@ -273,7 +275,7 @@ ${recommendation.explanation}
                   
                   {recommendation.team_analysis?.damage_distribution && (
                     <div>
-                      <h4 className="text-[#C8AA6E] font-semibold mb-2">Répartition des dégâts</h4>
+                      <h4 className="text-[#C8AA6E] font-semibold mb-2">{t('build.teamAnalysis.damageProfile')}</h4>
                       <div className="space-y-2 text-[#F0E6D2]/90">
                         {recommendation.team_analysis.damage_distribution.allied && (
                           <p>
@@ -299,7 +301,7 @@ ${recommendation.explanation}
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Flame className="h-5 w-5 text-[#FF4655]" />
-                    <h3 className="text-xl font-bold text-[#FF4655]">Début de partie</h3>
+                    <h3 className="text-xl font-bold text-[#FF4655]">{t('build.phases.early')}</h3>
                   </div>
                   <div className="space-y-4">
                     {recommendation.strategy.early_game.approach && (
@@ -333,7 +335,7 @@ ${recommendation.explanation}
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
-                    <h3 className="text-xl font-bold text-[#0AC8B9]">Milieu de partie</h3>
+                    <h3 className="text-xl font-bold text-[#0AC8B9]">{t('build.phases.mid')}</h3>
                   </div>
                   <div className="space-y-4">
                     {recommendation.strategy.mid_game.approach && (
@@ -354,7 +356,7 @@ ${recommendation.explanation}
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Zap className="h-5 w-5 text-[#C8AA6E]" />
-                    <h3 className="text-xl font-bold text-[#C8AA6E]">Fin de partie</h3>
+                    <h3 className="text-xl font-bold text-[#C8AA6E]">{t('build.phases.late')}</h3>
                   </div>
                   <div className="space-y-4">
                     {recommendation.strategy.late_game.approach && (
@@ -376,5 +378,3 @@ ${recommendation.explanation}
     </div>
   );
 }
-
-export { BuildRecommendationComponent as BuildRecommendation };
