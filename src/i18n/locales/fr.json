@@ -1,89 +1,72 @@
 {
   "app": {
-    "title": "Recommandations de Builds LoL",
+    "title": "I Can't Build",
     "subtitle": "Builds optimisés par IA",
     "help": "Aide",
     "reset": "Réinitialiser",
-    "disclaimer": "LoL Build Recommender n'est pas approuvé par Riot Games et ne reflète pas les opinions de Riot Games ou de toute personne impliquée dans la production ou la gestion de League of Legends. Créé par un joueur hardstuck mais cool qui aime le jeu !",
+    "disclaimer": "I Can't Build n'est pas approuvé par Riot Games et ne reflète pas les opinions de Riot Games ou de toute personne impliquée dans la production ou la gestion de League of Legends.",
     "poweredBy": "Propulsé par Rzn"
-  },
-  "tutorial": {
-    "welcome": {
-      "title": "Bienvenue sur LoL Build Recommender !",
-      "content": "Cet outil vous aide à obtenir des recommandations de builds optimales pour votre champion en fonction des compositions d'équipe."
-    },
-    "step1": {
-      "title": "Étape 1 : Sélectionnez Votre Équipe",
-      "content": "Commencez par ajouter des champions à votre équipe en utilisant la barre de recherche."
-    },
-    "step2": {
-      "title": "Étape 2 : Choisissez Votre Rôle",
-      "content": "Sélectionnez un rôle pour votre champion et marquez-le comme votre champion."
-    },
-    "step3": {
-      "title": "Étape 3 : Ajoutez les Champions Ennemis",
-      "content": "Ajoutez les champions de l'équipe ennemie pour obtenir un build adapté pour les contrer."
-    },
-    "step4": {
-      "title": "Étape 4 : Générez le Build",
-      "content": "Cliquez sur 'Générer le Build' pour obtenir des recommandations optimisées par l'IA pour votre match."
-    },
-    "close": "Fermer",
-    "next": "Suivant",
-    "previous": "Précédent",
-    "getStarted": "Commencer"
-  },
-  "search": {
-    "placeholder": "Rechercher des champions... (/ ou Ctrl+F)",
-    "noResults": "Aucun champion trouvé",
-    "noChampions": "Aucun champion sélectionné",
-    "useSearchBox": "Utilisez la barre de recherche ci-dessus pour ajouter des champions"
-  },
-  "tabs": {
-    "byRole": "Par Rôle",
-    "recent": "Récents",
-    "popular": "Populaires",
-    "favorites": "Favoris",
-    "all": "Tous",
-    "championsFor": "Champions pour la voie {{role}}"
-  },
-  "quickGuide": {
-    "title": "Guide Rapide",
-    "step1": "Ajoutez des champions à votre équipe",
-    "step2": "Sélectionnez votre champion et rôle",
-    "step3": "Ajoutez les champions ennemis",
-    "step4": "Générez votre build optimal"
-  },
-  "teams": {
-    "allies": "Votre Équipe",
-    "enemies": "Équipe Ennemie",
-    "championsCount": "{{count}}/5 champions"
-  },
-  "yourChampion": {
-    "title": "Votre Champion",
-    "noRole": "Aucun rôle sélectionné",
-    "selectPrompt": "Sélectionnez votre champion dans votre équipe",
-    "instructions": "Choisissez un champion et un rôle pour obtenir des recommandations personnalisées",
-    "firstStep": "Commencez par ajouter des champions à votre équipe en utilisant la barre de recherche ci-dessus"
   },
   "common": {
     "analyzing": "Analyse en cours...",
+    "generatingBuild": "Optimisation de votre build en fonction de la composition d'équipe",
     "generateBuild": "Générer le Build",
+    "copyBuild": "Copier le Build",
+    "copied": "Copié !",
     "selected": "Sélectionné",
     "none": "Aucun",
     "champions": "champions"
   },
-  "status": {
-    "allies": "Alliés : {{count}}/5",
-    "enemies": "Ennemis : {{count}}/5",
-    "champion": "Champion : {{status}}",
-    "role": "Rôle : {{role}}"
+  "build": {
+    "items": "Objets",
+    "runes": "Runes",
+    "strategy": "Stratégie",
+    "buildOrder": "Ordre de construction",
+    "powerSpikes": "Pics de puissance",
+    "powerSpike1": "Premier objet terminé",
+    "powerSpike2": "Objets principaux (2-3 objets)",
+    "powerSpike3": "Build complet",
+    "buildFocus": "Focus du build",
+    "buildFocus1": "Optimisé pour votre rôle",
+    "buildFocus2": "Contre la composition ennemie",
+    "buildFocus3": "Synergie avec l'équipe",
+    "phases": {
+      "early": "Début de partie",
+      "mid": "Milieu de partie",
+      "late": "Fin de partie"
+    },
+    "teamAnalysis": {
+      "title": "Analyse d'équipe",
+      "allyStrengths": "Forces alliées",
+      "enemyThreats": "Menaces ennemies",
+      "damageProfile": "Profil de dégâts"
+    },
+    "itemTypes": {
+      "starting": "Objets de départ",
+      "core": "Objets principaux",
+      "situational": "Objets situationnels",
+      "mythic": "Objet mythique"
+    },
+    "runeTypes": {
+      "keystone": "Pierre angulaire",
+      "primary": "Runes primaires",
+      "secondary": "Runes secondaires"
+    },
+    "runePaths": {
+      "precision": "Précision",
+      "domination": "Domination",
+      "sorcery": "Sorcellerie",
+      "resolve": "Détermination",
+      "inspiration": "Inspiration"
+    }
   },
-  "roles": {
-    "top": "Top",
-    "jungle": "Jungle",
-    "mid": "Mid",
-    "adc": "ADC",
-    "support": "Support"
+  "errors": {
+    "serverUnavailable": "Le serveur n'est pas disponible. Veuillez réessayer plus tard.",
+    "failedToGenerateBuild": "Échec de la génération du build. Veuillez réessayer.",
+    "invalidBuildData": "Données de build invalides reçues.",
+    "unknownError": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+    "missingChampion": "Veuillez d'abord sélectionner votre champion",
+    "missingRole": "Veuillez sélectionner un rôle pour votre champion",
+    "missingTeams": "Veuillez ajouter des champions aux deux équipes"
   }
 }

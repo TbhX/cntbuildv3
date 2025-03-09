@@ -1,4 +1,3 @@
-{/* I'll provide the complete, corrected file content but first need to remove the unused imports */}
 import React from 'react';
 import type { BuildRecommendation as BuildRecommendationType } from '../types';
 import { RoleIcon } from './RoleIcon';
@@ -44,7 +43,9 @@ ${recommendation.explanation}
       <div className="panel animated-bg flex flex-col items-center justify-center p-12">
         <div className="loading-spinner mb-4"></div>
         <p className="text-[#0AC8B9] font-semibold animate-pulse">{t('common.analyzing')}</p>
-        <p className="text-[#F0E6D2]/60 text-sm mt-2">{t('common.generatingBuild')}</p>
+        <p className="text-[#F0E6D2]/60 text-sm mt-2 text-center max-w-md">
+          {t('common.generatingBuild')}
+        </p>
       </div>
     );
   }
