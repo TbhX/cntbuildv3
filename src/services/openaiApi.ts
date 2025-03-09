@@ -85,7 +85,7 @@ const promptTemplates: Record<SupportedLanguage, (championName: string, role: st
   en: (championName, role, patch, season) => 
     `Generate a focused League of Legends Season ${season} build recommendation for ${championName} (${role}) in patch ${patch}.`,
   fr: (championName, role, patch, season) => 
-    `Générez une recommandation de build League of Legends Saison ${season} pour ${championName} (${role}) dans la version ${patch}.`,
+    `Générez une recommandation de build League of Legends Saison ${season} pour ${championName} (${role}) dans la version ${patch}. Expliquez en détail les synergies d'équipe et comment le build s'adapte à la composition adverse.`,
   es: (championName, role, patch, season) => 
     `Genera una recomendación de build de League of Legends Temporada ${season} para ${championName} (${role}) en el parche ${patch}.`,
   ko: (championName, role, patch, season) => 
@@ -96,6 +96,12 @@ const contextTemplates: Record<SupportedLanguage, {
   allies: string;
   enemies: string;
   guidelines: string[];
+  teamAnalysis: {
+    composition: string;
+    synergies: string;
+    threats: string;
+    buildAdaptation: string;
+  };
 }> = {
   en: {
     allies: "Allies",
@@ -106,40 +112,64 @@ const contextTemplates: Record<SupportedLanguage, {
       "Adapt build order based on enemy threats and team needs",
       "Optimize for role requirements",
       "Include core items and situational choices"
-    ]
+    ],
+    teamAnalysis: {
+      composition: "Team Composition Analysis",
+      synergies: "Team Synergies",
+      threats: "Enemy Threats",
+      buildAdaptation: "Build Adaptation"
+    }
   },
   fr: {
     allies: "Alliés",
     enemies: "Ennemis",
     guidelines: [
-      "Concentrez-vous sur les changements d'objets de la Saison 14",
-      "Tenez compte des synergies de composition d'équipe",
+      "Concentrez-vous sur les changements d'objets de la Saison actuelle",
+      "Analysez les synergies de composition d'équipe",
       "Adaptez l'ordre de construction selon les menaces ennemies",
       "Optimisez pour les exigences du rôle",
       "Incluez les objets principaux et situationnels"
-    ]
+    ],
+    teamAnalysis: {
+      composition: "Analyse de la Composition",
+      synergies: "Synergies d'Équipe",
+      threats: "Menaces Ennemies",
+      buildAdaptation: "Adaptation du Build"
+    }
   },
   es: {
     allies: "Aliados",
     enemies: "Enemigos",
     guidelines: [
-      "Enfócate en los cambios de objetos de la Temporada 14",
+      "Enfócate en los cambios de objetos de la Temporada actual",
       "Considera las sinergias de la composición del equipo",
       "Adapta el orden de construcción según las amenazas enemigas",
       "Optimiza para los requisitos del rol",
       "Incluye objetos principales y situacionales"
-    ]
+    ],
+    teamAnalysis: {
+      composition: "Análisis de Composición",
+      synergies: "Sinergias de Equipo",
+      threats: "Amenazas Enemigas",
+      buildAdaptation: "Adaptación del Build"
+    }
   },
   ko: {
     allies: "아군",
     enemies: "적군",
     guidelines: [
-      "시즌 14 아이템 변경 사항과 새로운 빌드 경로에 집중",
-      "팀 구성 시너지와 카운터 빌드 고려",
-      "적의 위협과 팀 요구 사항에 따라 빌드 순서 조정",
+      "현재 시즌 아이템 변경 사항에 집중",
+      "팀 구성 시너지 고려",
+      "적의 위협에 따른 빌드 순서 조정",
       "역할 요구 사항에 맞게 최적화",
-      "핵심 아이템과 상황별 선택 포함"
-    ]
+      "핵심 아이템과 상황별 선택"
+    ],
+    teamAnalysis: {
+      composition: "팀 구성 분석",
+      synergies: "팀 시너지",
+      threats: "적 위협",
+      buildAdaptation: "빌드 적응"
+    }
   }
 };
 
@@ -176,7 +206,7 @@ export async function generateBuildRecommendation(
     }
 
     if (healthCheckPassed) {
-      const currentLang = (i18n.language as SupportedLanguage) || 'en';
+      const currentLang = (i18n.language as SupportedLanguage) || 'fr';
       const templates = contextTemplates[currentLang];
       
       // Create language-specific prompt with current patch and season
@@ -185,6 +215,26 @@ export async function generateBuildRecommendation(
 Context:
 - ${templates.allies}: ${allies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
 - ${templates.enemies}: ${enemies.map(c => `${c.name}${c.role ? ` (${c.role})` : ''}`).join(', ')}
+
+${templates.teamAnalysis.composition}:
+- Analysez en détail la composition de chaque équipe
+- Identifiez le style de jeu principal (engage, poke, split-push, etc.)
+- Évaluez la répartition des dégâts (magique/physique)
+
+${templates.teamAnalysis.synergies}:
+- Expliquez les synergies entre votre champion et vos alliés
+- Identifiez les combos potentiels
+- Détaillez comment le build renforce ces synergies
+
+${templates.teamAnalysis.threats}:
+- Analysez les menaces principales de l'équipe ennemie
+- Identifiez les contre-mesures nécessaires
+- Expliquez comment le build aide à contrer ces menaces
+
+${templates.teamAnalysis.buildAdaptation}:
+- Justifiez chaque choix d'item en fonction de la composition
+- Expliquez l'ordre de construction optimal
+- Proposez des variations selon l'évolution de la partie
 
 Required JSON structure:
 {
@@ -254,27 +304,27 @@ Please respond in ${currentLang === 'en' ? 'English' : languages[currentLang].na
         // Build the explanation string with all available strategy information
         const strategyText = [
           '📊 Team Analysis:',
-          data.team_analysis?.ally_strengths?.length > 0 ? 'Allied Strengths:' : '',
+          data.team_analysis?.ally_strengths?.length > 0 ? '\nForces de l\'équipe :' : '',
           ...(data.team_analysis?.ally_strengths?.map((s: string) => `• ${s}`) || []),
-          data.team_analysis?.enemy_threats?.length > 0 ? '\nEnemy Threats:' : '',
+          data.team_analysis?.enemy_threats?.length > 0 ? '\nMenaces ennemies :' : '',
           ...(data.team_analysis?.enemy_threats?.map((t: string) => `• ${t}`) || []),
-          '\nDamage Profile:',
-          data.team_analysis?.damage_distribution?.allied ? `• Allied Team: ${data.team_analysis.damage_distribution.allied}` : '',
-          data.team_analysis?.damage_distribution?.enemy ? `• Enemy Team: ${data.team_analysis.damage_distribution.enemy}` : '',
+          '\nRépartition des dégâts :',
+          data.team_analysis?.damage_distribution?.allied ? `• Équipe alliée : ${data.team_analysis.damage_distribution.allied}` : '',
+          data.team_analysis?.damage_distribution?.enemy ? `• Équipe ennemie : ${data.team_analysis.damage_distribution.enemy}` : '',
           
           '\n🌅 Early Game:',
           data.strategy?.early_game?.approach || '',
-          data.strategy?.early_game?.trading_pattern ? `\nTrading Pattern: ${data.strategy.early_game.trading_pattern}` : '',
-          data.strategy?.early_game?.power_spikes?.length > 0 ? '\nPower Spikes:' : '',
+          data.strategy?.early_game?.trading_pattern ? `\nPattern de trade : ${data.strategy.early_game.trading_pattern}` : '',
+          data.strategy?.early_game?.power_spikes?.length > 0 ? '\nPower Spikes :' : '',
           ...(data.strategy?.early_game?.power_spikes?.map((s: string) => `• ${s}`) || []),
           
           '\n🌤️ Mid Game:',
           data.strategy?.mid_game?.approach || '',
-          data.strategy?.mid_game?.role_in_team ? `\nTeam Role: ${data.strategy.mid_game.role_in_team}` : '',
+          data.strategy?.mid_game?.role_in_team ? `\nRôle en équipe : ${data.strategy.mid_game.role_in_team}` : '',
           
           '\n🌕 Late Game:',
           data.strategy?.late_game?.approach || '',
-          data.strategy?.late_game?.win_condition ? `\nWin Condition: ${data.strategy.late_game.win_condition}` : ''
+          data.strategy?.late_game?.win_condition ? `\nCondition de victoire : ${data.strategy.late_game.win_condition}` : ''
         ].filter(Boolean).join('\n');
 
         return {

@@ -202,28 +202,28 @@ function App() {
 
     const steps = [
       {
-        title: "Welcome to I Can't Build!",
-        content: "This tool helps you get optimal build recommendations for your champion based on team compositions.",
+        title: "Bienvenue sur I can't build",
+        content: "Cet outil vous permet d'obtenir des recommandations de builds  pour votre champion en fonction de la composition de votre équipe.",
         position: "center"
       },
       {
-        title: "Step 1: Select Your Team",
-        content: "Start by adding champions to your team using the search box.",
+        title: "Etape 1: Prepare ta Team",
+        content: "Commencence par ajouter les champions de ta team",
         position: "left"
       },
       {
-        title: "Step 2: Choose Your Role",
-        content: "Select a role for your champion and mark it as your champion.",
+        title: "Step 2: Choisis Ton Role",
+        content: "Sélectionnez un rôle pour votre champion et marquez-le comme votre champion.",
         position: "left"
       },
       {
-        title: "Step 3: Add Enemy Champions",
-        content: "Add champions to the enemy team to get a build tailored to counter them.",
+        title: "Step 3: Ajoute les champions ennemis",
+        content: "Ajoutez les champions de l'équipe ennemie pour obtenir une construction adaptée pour les contrer.",
         position: "right"
       },
       {
-        title: "Step 4: Generate Build",
-        content: "Click 'Generate Build' to get AI-powered recommendations optimized for your matchup.",
+        title: "Step 4: Genere le  Build",
+        content: "Cliquez sur 'Generate Build' pour obtenir un build recommande pour ce matchup.",
         position: "right"
       }
     ];
@@ -311,7 +311,7 @@ function App() {
                 title="Help"
               >
                 <HelpCircle className="h-4 w-4 text-[#C8AA6E]" />
-                <span className="text-sm text-[#C8AA6E] hidden md:inline">Help</span>
+                <span className="text-sm text-[#C8AA6E] hidden md:inline">Aide</span>
               </button>
               
               <button 
@@ -341,19 +341,19 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-[#F0E6D2]/90 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="bg-[#0AC8B9]/20 rounded-full w-6 h-6 flex items-center justify-center text-[#0AC8B9] font-bold">1</div>
-                    <span>Select your team's champions</span>
+                    <span>Selectionne les champions de ta team</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="bg-[#0AC8B9]/20 rounded-full w-6 h-6 flex items-center justify-center text-[#0AC8B9] font-bold">2</div>
-                    <span>Choose your champion and role</span>
+                    <span>Choisis ton champion et son role</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="bg-[#0AC8B9]/20 rounded-full w-6 h-6 flex items-center justify-center text-[#0AC8B9] font-bold">3</div>
-                    <span>Add enemy team champions</span>
+                    <span>Ajoute les champions ennemis</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="bg-[#0AC8B9]/20 rounded-full w-6 h-6 flex items-center justify-center text-[#0AC8B9] font-bold">4</div>
-                    <span>Generate build recommendation</span>
+                    <span>Generate build</span>
                   </div>
                 </div>
               </div>
@@ -365,7 +365,7 @@ function App() {
               <div className="panel animated-bg mb-8">
                 <div className="flex items-center gap-2 mb-4">
                   <Shield className="h-5 w-5 text-[#C8AA6E]" />
-                  <h3 className="section-title">Your Team</h3>
+                  <h3 className="section-title">Ta team</h3>
                   <div className="ml-auto text-sm text-[#F0E6D2]/70">
                     {team.allies.length}/5 Champions
                   </div>
@@ -388,7 +388,7 @@ function App() {
               <div className="panel animated-bg mb-8">
                 <div className="flex items-center gap-2 mb-4">
                   <Target className="h-5 w-5 text-[#C8AA6E]" />
-                  <h3 className="section-title">Enemy Team</h3>
+                  <h3 className="section-title"> Team Ennemie</h3>
                   <div className="ml-auto text-sm text-[#F0E6D2]/70">
                     {team.enemies.length}/5 Champions
                   </div>
@@ -408,7 +408,7 @@ function App() {
               <div className="panel animated-bg mb-8">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="h-5 w-5 text-[#0AC8B9]" />
-                  <h3 className="section-title text-[#0AC8B9]">Your Champion</h3>
+                  <h3 className="section-title text-[#0AC8B9]">Ton Champion</h3>
                 </div>
                 
                 {team.playerChampion ? (
@@ -432,7 +432,7 @@ function App() {
                             </div>
                           ) : (
                             <div className="flex items-center bg-[#785A28]/20 px-3 py-1 rounded-full border border-[#785A28]/30">
-                              <span className="text-[#C8AA6E]">No role selected</span>
+                              <span className="text-[#C8AA6E]">Aucun role selectionne</span>
                             </div>
                           )}
                         </div>
@@ -481,14 +481,14 @@ function App() {
                   </div>
                 ) : (
                   <div className="bg-gradient-to-br from-[#1E2328] to-[#091428] border border-[#785A28] rounded-lg p-6 text-center">
-                    <p className="text-[#C8AA6E] mb-2">Select Your Champion</p>
-                    <p className="text-[#F0E6D2]/60 text-sm">Choose a champion from your team and assign them as your champion</p>
+                    <p className="text-[#C8AA6E] mb-2">Choisis ton Champion</p>
+                    <p className="text-[#F0E6D2]/60 text-sm">Choisissez un champion au sein de votre équipe et désignez-le comme votre champion.</p>
                     
                     <div className="mt-6 flex justify-center">
                       <div className="bg-[#1E2328]/80 border border-[#785A28]/50 rounded-lg p-3 max-w-xs">
                         <div className="flex items-center gap-2 text-left">
                           <div className="bg-[#0AC8B9]/20 rounded-full w-6 h-6 flex items-center justify-center text-[#0AC8B9] font-bold">1</div>
-                          <span className="text-sm text-[#F0E6D2]/90">First, add a champion to your team</span>
+                          <span className="text-sm text-[#F0E6D2]/90">Tout d'abord, ajoutez un champion à votre équipe</span>
                         </div>
                       </div>
                     </div>
