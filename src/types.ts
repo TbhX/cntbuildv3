@@ -1,5 +1,3 @@
-import type { Role } from './types';
-
 export interface Champion {
   id: string;
   name: string;
@@ -18,9 +16,58 @@ export interface BuildRecommendation {
   explanation: string;
   forChampion?: Champion;
   forRole?: Role;
-  stats?: ChampionStats;
-  counters?: CounterPick[];
-  feedback?: BuildFeedback[];
+  strategy: {
+    early_game?: {
+      approach?: string;
+      power_spikes?: string[];
+      objectives?: string[];
+      trading_pattern?: string;
+    };
+    mid_game?: {
+      approach?: string;
+      power_spikes?: string[];
+      objectives?: string[];
+      role_in_team?: string;
+    };
+    late_game?: {
+      approach?: string;
+      team_fighting?: string;
+      win_condition?: string;
+    };
+  };
+  team_analysis: {
+    ally_strengths?: string[];
+    enemy_threats?: string[];
+    damage_distribution?: {
+      allied?: string;
+      enemy?: string;
+    };
+  };
+  build_order?: {
+    starting_items?: {
+      items: string[];
+      explanation: string;
+    };
+    first_back?: {
+      ideal_gold: number;
+      priority_items: string[];
+      explanation: string;
+      variations?: {
+        ahead?: string;
+        behind?: string;
+        even?: string;
+      };
+    };
+    core_items?: {
+      sequence: string[];
+      reasoning: string;
+    };
+    situational_items?: Array<{
+      item: string;
+      when: string;
+      instead_of?: string;
+    }>;
+  };
 }
 
 export interface ChampionStats {

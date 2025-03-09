@@ -144,29 +144,33 @@ ${recommendation.explanation}
                 <Clock className="h-5 w-5 text-[#C8AA6E]" />
                 <h3 className="section-title">{t('build.buildOrder')}</h3>
               </div>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="flex items-center gap-4 overflow-x-auto pb-4">
                 {recommendation.items.map((item, index) => (
-                  <div key={`${item.id}-${index}`} className="flex items-center gap-4 bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
-                    <div className="flex-shrink-0">
-                      <ItemIcon item={item} index={index} showTooltip={true} />
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="text-[#C8AA6E] font-semibold">{item.name}</h4>
-                      <p className="text-[#F0E6D2]/80 text-sm mt-1">{item.description}</p>
-                      {item.gold && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <img 
-                            src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
-                            alt="gold"
-                            className="w-4 h-4"
-                          />
-                          <span className="text-[#C8AA6E]">{item.gold}</span>
+                  <div key={`${item.id}-${index}`} className="flex-shrink-0">
+                    <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors w-[200px]">
+                      <div className="flex items-center gap-4">
+                        <div className="flex-shrink-0">
+                          <ItemIcon item={item} index={index} showTooltip={true} />
                         </div>
-                      )}
+                        <div className="flex-grow min-w-0">
+                          <h4 className="text-[#C8AA6E] font-semibold truncate">{item.name}</h4>
+                          <p className="text-[#F0E6D2]/80 text-sm mt-1 line-clamp-2">{item.description}</p>
+                          {item.gold && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <img 
+                                src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
+                                alt="gold"
+                                className="w-4 h-4"
+                              />
+                              <span className="text-[#C8AA6E]">{item.gold}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     {index < recommendation.items.length - 1 && (
-                      <div className="flex-shrink-0 text-[#0AC8B9]">
-                        <ArrowRight className="h-6 w-6" />
+                      <div className="flex items-center justify-center mx-2">
+                        <ArrowRight className="h-6 w-6 text-[#0AC8B9]" />
                       </div>
                     )}
                   </div>
