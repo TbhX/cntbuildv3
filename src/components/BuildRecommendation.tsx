@@ -1,9 +1,10 @@
+{/* I'll provide the complete, corrected file content but first need to remove the unused imports */}
 import React from 'react';
 import type { BuildRecommendation as BuildRecommendationType } from '../types';
 import { RoleIcon } from './RoleIcon';
 import { ItemIcon } from './ItemIcon';
 import { ImageWithFallback } from './ImageWithFallback';
-import { Sword, Shield, Sparkles, Award, Copy, Check, Info, Clock, ArrowRight, Target, Crosshair, Zap, Flame, Waypoints, AlertCircle } from 'lucide-react';
+import { Sword, Shield, Sparkles, Copy, Check, Clock, ArrowRight, Target, Crosshair, Zap, Flame } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface BuildRecommendationProps {
@@ -11,7 +12,7 @@ interface BuildRecommendationProps {
   isLoading: boolean;
 }
 
-export function BuildRecommendation({ recommendation, isLoading }: BuildRecommendationProps) {
+function BuildRecommendationComponent({ recommendation, isLoading }: BuildRecommendationProps) {
   const { t } = useTranslation();
   const [copied, setCopied] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'items' | 'runes' | 'strategy'>('items');
@@ -20,15 +21,15 @@ export function BuildRecommendation({ recommendation, isLoading }: BuildRecommen
     if (!recommendation) return;
     
     const buildText = `
-Build pour ${recommendation.forChampion?.name} (${recommendation.forRole})
+Build for ${recommendation.forChampion?.name} (${recommendation.forRole})
 
-OBJETS (Ordre de construction):
+ITEMS (Build Order):
 ${recommendation.items.map((item, index) => `${index + 1}. ${item.name}: ${item.description}`).join('\n')}
 
 RUNES:
 ${recommendation.runes.map(rune => `${rune.name}: ${rune.description}`).join('\n')}
 
-STRATÉGIE:
+BUILD STRATEGY:
 ${recommendation.explanation}
     `.trim();
     
@@ -58,23 +59,14 @@ ${recommendation.explanation}
     { id: 'strategy', label: t('build.strategy'), icon: <Sparkles className="h-4 w-4" /> }
   ] as const;
 
-  // Split strategy text into sections
-  const strategyParts = recommendation.explanation.split('\n\n').reduce((acc, part) => {
-    if (part.startsWith('📊 Team Analysis:')) acc.teamAnalysis = part;
-    else if (part.startsWith('🌅 Early Game:')) acc.earlyGame = part;
-    else if (part.startsWith('🌤️ Mid Game:')) acc.midGame = part;
-    else if (part.startsWith('🌕 Late Game:')) acc.lateGame = part;
-    else if (part.startsWith('⚔️ Build Path:')) acc.buildPath = part;
-    return acc;
-  }, {} as Record<string, string>);
+  // Helper function to safely check array length
+  const hasItems = (arr?: any[]): arr is any[] => Array.isArray(arr) && arr.length > 0;
 
-  // Group items by game phase
-  const buildPhases = recommendation.build_order ? {
-    starting: recommendation.build_order.starting_phase?.items || [],
-    early: recommendation.build_order.early_phase?.core_progression || [],
-    mid: recommendation.build_order.mid_phase?.core_items || [],
-    late: recommendation.build_order.late_phase?.final_build || []
-  } : null;
+  // Helper function to safely render lists
+  const renderList = (items?: any[], renderItem?: (item: any, index: number) => React.ReactNode) => {
+    if (!hasItems(items) || !renderItem) return null;
+    return items.map(renderItem);
+  };
 
   return (
     <div className="panel panel-accent animated-bg space-y-6">
@@ -97,7 +89,7 @@ ${recommendation.explanation}
                 {recommendation.forRole && (
                   <div className="flex items-center mt-2 bg-[#0AC8B9]/20 px-3 py-1 rounded-full inline-block border border-[#0AC8B9]/30">
                     <RoleIcon role={recommendation.forRole} size={20} className="role-icon" />
-                    <span className="ml-2 text-[#0AC8B9] font-semibold capitalize">{recommendation.forRole}</span>
+                    <span className="ml-2 text-[#0AC8B9] font-semibold capitalize">{recommendation.forRole} Lane</span>
                   </div>
                 )}
               </div>
@@ -146,156 +138,45 @@ ${recommendation.explanation}
       {/* Content based on active tab */}
       <div className="mt-4">
         {activeTab === 'items' && (
-          <div className="space-y-8">
-            {/* Build phases */}
-            {buildPhases ? (
-              <>
-                {/* Starting items */}
-                {buildPhases.starting.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-[#C8AA6E]" />
-                      <h3 className="text-xl font-bold text-[#C8AA6E]">Objets de départ (0-5 min)</h3>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                      {buildPhases.starting.map((item, index) => (
-                        <div key={`start-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
-                          <div className="flex items-center gap-4">
-                            <ItemIcon item={item} showTooltip={true} size={48} />
-                            <div>
-                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
-                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
-                            </div>
-                          </div>
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="h-5 w-5 text-[#C8AA6E]" />
+                <h3 className="section-title">{t('build.buildOrder')}</h3>
+              </div>
+              <div className="flex items-center gap-4 overflow-x-auto pb-4">
+                {recommendation.items.map((item, index) => (
+                  <div key={`${item.id}-${index}`} className="flex-shrink-0">
+                    <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors w-[200px]">
+                      <div className="flex items-center gap-4">
+                        <div className="flex-shrink-0">
+                          <ItemIcon item={item} index={index} showTooltip={true} />
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Early game items */}
-                {buildPhases.early.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Flame className="h-5 w-5 text-[#FF4655]" />
-                      <h3 className="text-xl font-bold text-[#FF4655]">Phase de lane (5-15 min)</h3>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                      {buildPhases.early.map((item, index) => (
-                        <div key={`early-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
-                          <div className="flex items-center gap-4">
-                            <ItemIcon item={item} showTooltip={true} size={48} />
-                            <div>
-                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
-                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
-                              {item.timing && (
-                                <div className="flex items-center gap-1 mt-2 text-xs text-[#0AC8B9]">
-                                  <Clock className="h-3 w-3" />
-                                  <span>{item.timing}</span>
-                                </div>
-                              )}
+                        <div className="flex-grow min-w-0">
+                          <h4 className="text-[#C8AA6E] font-semibold truncate">{item.name}</h4>
+                          <p className="text-[#F0E6D2]/80 text-sm mt-1 line-clamp-2">{item.description}</p>
+                          {item.gold && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <img 
+                                src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
+                                alt="gold"
+                                className="w-4 h-4"
+                              />
+                              <span className="text-[#C8AA6E]">{item.gold}</span>
                             </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Mid game items */}
-                {buildPhases.mid.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
-                      <h3 className="text-xl font-bold text-[#0AC8B9]">Phase de groupe (15-25 min)</h3>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                      {buildPhases.mid.map((item, index) => (
-                        <div key={`mid-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
-                          <div className="flex items-center gap-4">
-                            <ItemIcon item={item} showTooltip={true} size={48} />
-                            <div>
-                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
-                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Late game items */}
-                {buildPhases.late.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-[#C8AA6E]" />
-                      <h3 className="text-xl font-bold text-[#C8AA6E]">Phase finale (25+ min)</h3>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                      {buildPhases.late.map((item, index) => (
-                        <div key={`late-${item.id}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
-                          <div className="flex items-center gap-4">
-                            <ItemIcon item={item} showTooltip={true} size={48} />
-                            <div>
-                              <h4 className="text-[#F0E6D2] font-semibold">{item.name}</h4>
-                              <p className="text-[#F0E6D2]/70 text-sm mt-1">{item.reason}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              // Fallback to simple item list if no build phases
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Clock className="h-5 w-5 text-[#C8AA6E]" />
-                  <h3 className="section-title">Ordre de construction</h3>
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  {recommendation.items.map((item, index) => (
-                    <div key={`${item.id}-${index}`} className="relative">
-                      <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className="relative flex-shrink-0">
-                            <ItemIcon 
-                              item={item} 
-                              index={index} 
-                              showTooltip={true}
-                              size={64}
-                            />
-                          </div>
-                          <div className="flex-grow min-w-0">
-                            <h4 className="text-[#C8AA6E] font-semibold text-lg">{item.name}</h4>
-                            <p className="text-[#F0E6D2]/80 mt-2">{item.description}</p>
-                            {item.gold && (
-                              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#785A28]/30">
-                                <img 
-                                  src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
-                                  alt="gold"
-                                  className="w-5 h-5"
-                                />
-                                <span className="text-[#C8AA6E] font-semibold">{item.gold}</span>
-                              </div>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
-                      {index < recommendation.items.length - 1 && (
-                        <div className="absolute left-8 -bottom-4 transform translate-x-1/2 z-10">
-                          <div className="bg-[#0AC8B9] rounded-full p-1">
-                            <ArrowRight className="h-5 w-5 text-[#091428]" />
-                          </div>
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
+                    {index < recommendation.items.length - 1 && (
+                      <div className="flex items-center justify-center mx-2">
+                        <ArrowRight className="h-6 w-6 text-[#0AC8B9]" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -307,19 +188,39 @@ ${recommendation.explanation}
                 <h3 className="section-title">Runes</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recommendation.runes.map((rune) => (
-                  <div key={`${rune.id}-${rune.name}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
+                {renderList(recommendation.runes, (rune, index) => (
+                  <div key={`${rune.id}-${index}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-16 h-16 bg-[#091428]/50 rounded-lg p-2">
                         <img 
-                          src={rune.imageUrl} 
+                          src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${rune.id}.png`}
                           alt={rune.name}
                           className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/runesicon.png';
+                          }}
                         />
                       </div>
                       <div>
-                        <h4 className="text-[#C8AA6E] font-semibold text-lg">{rune.name}</h4>
-                        <p className="text-[#F0E6D2]/80 mt-2">{rune.description}</p>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-[#C8AA6E] font-semibold text-lg">{rune.name}</h4>
+                          {rune.type === 'keystone' && (
+                            <span className="px-2 py-0.5 bg-[#0AC8B9]/20 text-[#0AC8B9] text-xs rounded-full">
+                              Keystone
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[#F0E6D2]/80 mt-2 text-sm">{rune.description}</p>
+                        {rune.path && (
+                          <div className="mt-2 flex items-center gap-1">
+                            <img 
+                              src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/${rune.path.toLowerCase()}.png`}
+                              alt={rune.path}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-xs text-[#C8AA6E] capitalize">{rune.path}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -332,16 +233,60 @@ ${recommendation.explanation}
         {activeTab === 'strategy' && (
           <div className="space-y-8">
             {/* Team Analysis */}
-            {strategyParts.teamAnalysis && (
+            {(hasItems(recommendation.team_analysis?.ally_strengths) || 
+              hasItems(recommendation.team_analysis?.enemy_threats) || 
+              recommendation.team_analysis?.damage_distribution) && (
               <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                 <div className="flex items-center gap-2 mb-4">
                   <Target className="h-5 w-5 text-[#C8AA6E]" />
                   <h3 className="text-xl font-bold text-[#C8AA6E]">Analyse d'équipe</h3>
                 </div>
-                <div className="prose prose-invert max-w-none">
-                  <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                    {strategyParts.teamAnalysis.replace('📊 Team Analysis:', '')}
-                  </div>
+                <div className="space-y-4">
+                  {hasItems(recommendation.team_analysis?.ally_strengths) && (
+                    <div>
+                      <h4 className="text-[#0AC8B9] font-semibold mb-2">Forces de l'équipe</h4>
+                      <ul className="space-y-2">
+                        {renderList(recommendation.team_analysis.ally_strengths, (strength, index) => (
+                          <li key={index} className="flex items-start gap-2 text-[#F0E6D2]/90">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#0AC8B9] mt-2"></div>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {hasItems(recommendation.team_analysis?.enemy_threats) && (
+                    <div>
+                      <h4 className="text-[#FF4655] font-semibold mb-2">Menaces ennemies</h4>
+                      <ul className="space-y-2">
+                        {renderList(recommendation.team_analysis.enemy_threats, (threat, index) => (
+                          <li key={index} className="flex items-start gap-2 text-[#F0E6D2]/90">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#FF4655] mt-2"></div>
+                            <span>{threat}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {recommendation.team_analysis?.damage_distribution && (
+                    <div>
+                      <h4 className="text-[#C8AA6E] font-semibold mb-2">Répartition des dégâts</h4>
+                      <div className="space-y-2 text-[#F0E6D2]/90">
+                        {recommendation.team_analysis.damage_distribution.allied && (
+                          <p>
+                            <span className="text-[#0AC8B9]">Équipe alliée:</span> {recommendation.team_analysis.damage_distribution.allied}
+                          </p>
+                        )}
+                        {recommendation.team_analysis.damage_distribution.enemy && (
+                          <p>
+                            <span className="text-[#FF4655]">Équipe ennemie:</span> {recommendation.team_analysis.damage_distribution.enemy}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -349,68 +294,86 @@ ${recommendation.explanation}
             {/* Game Phases */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Early Game */}
-              {strategyParts.earlyGame && (
+              {recommendation.strategy?.early_game && (
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Flame className="h-5 w-5 text-[#FF4655]" />
                     <h3 className="text-xl font-bold text-[#FF4655]">Début de partie</h3>
                   </div>
-                  <div className="prose prose-invert max-w-none">
-                    <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                      {strategyParts.earlyGame.replace('🌅 Early Game:', '')}
-                    </div>
+                  <div className="space-y-4">
+                    {recommendation.strategy.early_game.approach && (
+                      <p className="text-[#F0E6D2]/90">{recommendation.strategy.early_game.approach}</p>
+                    )}
+                    {recommendation.strategy.early_game.trading_pattern && (
+                      <div>
+                        <h4 className="text-[#C8AA6E] font-semibold mb-2">Pattern de trade</h4>
+                        <p className="text-[#F0E6D2]/90">{recommendation.strategy.early_game.trading_pattern}</p>
+                      </div>
+                    )}
+                    {hasItems(recommendation.strategy.early_game.power_spikes) && (
+                      <div>
+                        <h4 className="text-[#C8AA6E] font-semibold mb-2">Power Spikes</h4>
+                        <ul className="space-y-2">
+                          {renderList(recommendation.strategy.early_game.power_spikes, (spike, index) => (
+                            <li key={index} className="flex items-start gap-2 text-[#F0E6D2]/90">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#FF4655] mt-2"></div>
+                              <span>{spike}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
               {/* Mid Game */}
-              {strategyParts.midGame && (
+              {recommendation.strategy?.mid_game && (
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
                     <h3 className="text-xl font-bold text-[#0AC8B9]">Milieu de partie</h3>
                   </div>
-                  <div className="prose prose-invert max-w-none">
-                    <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                      {strategyParts.midGame.replace('🌤️ Mid Game:', '')}
-                    </div>
+                  <div className="space-y-4">
+                    {recommendation.strategy.mid_game.approach && (
+                      <p className="text-[#F0E6D2]/90">{recommendation.strategy.mid_game.approach}</p>
+                    )}
+                    {recommendation.strategy.mid_game.role_in_team && (
+                      <div>
+                        <h4 className="text-[#C8AA6E] font-semibold mb-2">Rôle en équipe</h4>
+                        <p className="text-[#F0E6D2]/90">{recommendation.strategy.mid_game.role_in_team}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
               {/* Late Game */}
-              {strategyParts.lateGame && (
+              {recommendation.strategy?.late_game && (
                 <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
                   <div className="flex items-center gap-2 mb-4">
                     <Zap className="h-5 w-5 text-[#C8AA6E]" />
                     <h3 className="text-xl font-bold text-[#C8AA6E]">Fin de partie</h3>
                   </div>
-                  <div className="prose prose-invert max-w-none">
-                    <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                      {strategyParts.lateGame.replace('🌕 Late Game:', '')}
-                    </div>
+                  <div className="space-y-4">
+                    {recommendation.strategy.late_game.approach && (
+                      <p className="text-[#F0E6D2]/90">{recommendation.strategy.late_game.approach}</p>
+                    )}
+                    {recommendation.strategy.late_game.win_condition && (
+                      <div>
+                        <h4 className="text-[#C8AA6E] font-semibold mb-2">Condition de victoire</h4>
+                        <p className="text-[#F0E6D2]/90">{recommendation.strategy.late_game.win_condition}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Build Path */}
-            {strategyParts.buildPath && (
-              <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
-                <div className="flex items-center gap-2 mb-4">
-                  <Waypoints className="h-5 w-5 text-[#0AC8B9]" />
-                  <h3 className="text-xl font-bold text-[#0AC8B9]">Progression du build</h3>
-                </div>
-                <div className="prose prose-invert max-w-none">
-                  <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                    {strategyParts.buildPath.replace('⚔️ Build Path:', '')}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
     </div>
   );
 }
+
+export { BuildRecommendationComponent as BuildRecommendation };
