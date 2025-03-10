@@ -11,7 +11,7 @@ const apiUrl = (endpoint: string) => `${getApiBaseUrl()}${endpoint}`;
 // Add error handling and retry logic with timeout
 const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, backoff = 300): Promise<Response> => {
   const controller = new AbortController();
-  const timeout = 30000; // 30 seconds timeout
+  const timeout = 90000; // 90 seconds timeout
   
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -33,20 +33,22 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
       const errorText = await response.text();
       try {
         const errorData = JSON.parse(errorText);
-        throw new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+        throw new Error(errorData.error || `Erreur API: ${response.status} ${response.statusText}`);
       } catch (e) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+        throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
       }
     }
     return response;
-  } catch (error: any) { // Type error as any to handle both Error and DOMException
+  } catch (error) {
     clearTimeout(timeoutId);
     
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('La requête a pris trop de temps. Veuillez réessayer.');
     }
     
-    if (retries <= 1) throw error;
+    if (retries <= 1) {
+      throw new Error(error instanceof Error ? error.message : 'Une erreur est survenue');
+    }
     
     // Exponential backoff
     await new Promise(resolve => setTimeout(resolve, backoff));
@@ -54,7 +56,7 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
   }
 };
 
-// Simplified prompt template to reduce token count
+// French prompt template
 const FRENCH_PROMPT_TEMPLATE = (
   championName: string,
   role: string,
@@ -68,32 +70,73 @@ Générez un build LoL S15 pour ${championName} (${role}), version ${version}.
 - Alliés : ${allyComposition}
 - Ennemis : ${enemyComposition}
 
-Réponse JSON :
+Structure JSON requise :
 {
-  "items": [{"id": "string", "name": "string"}],
-  "runes": [{"id": "string", "name": "string", "type": "keystone" | "primary" | "secondary"}],
+  "items": [{"id": "string", "name": "string", "description": "string", "gold": number}],
+  "runes": [{"id": "string", "name": "string", "description": "string", "type": "keystone" | "primary" | "secondary"}],
   "strategie": {
-    "early": {"approche": "string", "power_spikes": ["string"], "trading_pattern": "string"},
-    "mid": {"approche": "string", "role": "string"},
-    "late": {"approche": "string", "win_condition": "string"}
+    "debut_partie": {
+      "approche": "string",
+      "pics_puissance": ["string"],
+      "pattern_trade": "string"
+    },
+    "milieu_partie": {
+      "approche": "string",
+      "role_equipe": "string"
+    },
+    "fin_partie": {
+      "approche": "string",
+      "condition_victoire": "string"
+    }
   },
   "analyse_equipe": {
-    "forces": ["string"],
-    "menaces": ["string"],
-    "profil_degats": {"allies": "string", "ennemis": "string"}
+    "forces_allies": ["string"],
+    "menaces_ennemies": ["string"],
+    "profil_degats": {
+      "allies": "string",
+      "ennemis": "string"
+    }
   },
   "ordre_items": {
-    "early": {"start_items": [{"id": "string", "raison": "string"}], "first_back": {"gold": number, "priorities": ["string"]}},
-    "mid": {"mythic_timing": "string", "core_items": [{"id": "string", "raison": "string"}]},
-    "late": {"final_build": ["string"], "situational": [{"id": "string", "when": "string", "replace": "string"}]}
+    "phase_depart": {
+      "items": [{"id": "string", "name": "string", "raison": "string"}],
+      "timing": "string",
+      "adaptations": {
+        "matchup": "string",
+        "composition": "string"
+      }
+    },
+    "phase_precoce": {
+      "premier_retour": {
+        "or_ideal": number,
+        "items_prioritaires": [{"id": "string", "name": "string", "raison": "string"}],
+        "variations": {
+          "avance": "string",
+          "egal": "string",
+          "retard": "string"
+        }
+      },
+      "progression_core": ["string"]
+    },
+    "phase_mid": {
+      "timing_mythique": "string",
+      "items_core": [{"id": "string", "name": "string", "raison": "string"}],
+      "focus_objectifs": "string",
+      "adaptations_equipe": "string"
+    },
+    "phase_fin": {
+      "build_final": [{"id": "string", "name": "string", "raison": "string"}],
+      "choix_situationnels": [{"id": "string", "name": "string", "quand": "string", "remplace": "string"}],
+      "items_condition_victoire": "string"
+    }
   }
 }
 
 Instructions :
-1. Priorisez les changements de la S15.
-2. Tenez compte des synergies et menaces.
-3. Adaptez l'ordre des items au matchup.
-4. Répondez en JSON valide et en français.`;
+1. Priorisez les changements de la S15
+2. Tenez compte des synergies et menaces
+3. Adaptez l'ordre des items au matchup
+4. Répondez en JSON valide et en français`;
 
 // Main build recommendation function
 export async function generateBuildRecommendation(
@@ -133,15 +176,15 @@ export async function generateBuildRecommendation(
 
     const data = await response.json() as ApiResponse<any>;
 
-    if (!data.success || !data.data) {
-      throw new Error(data.error || "Erreur lors de la génération du build");
+    if (!data || !data.data) {
+      throw new Error("Réponse invalide du serveur");
     }
 
     // Format the response data
     const formattedItems = (data.data?.items || []).map((item: any) => ({
       id: item.id,
       name: item.name,
-      description: item.description,
+      description: item.description || '',
       gold: item.gold || 0,
       mythic: item.mythic || false,
       imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`
@@ -150,7 +193,7 @@ export async function generateBuildRecommendation(
     const formattedRunes = (data.data?.runes || []).map((rune: any) => ({
       id: rune.id,
       name: rune.name,
-      description: rune.description,
+      description: rune.description || '',
       type: rune.type || 'primary',
       path: rune.path || 'precision',
       imageUrl: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/${rune.id}.png`
@@ -212,11 +255,11 @@ export async function generateBuildRecommendation(
       build_order: {
         starting_phase: {
           items: data.data?.ordre_items?.phase_depart?.items?.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description,
+            id: item.id || '',
+            name: item.name || '',
+            description: item.description || '',
             imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
-            reason: item.raison
+            reason: item.raison || ''
           })) || [],
           timing: data.data?.ordre_items?.phase_depart?.timing || '',
           adaptations: {
@@ -228,11 +271,11 @@ export async function generateBuildRecommendation(
           first_back: {
             ideal_gold: data.data?.ordre_items?.phase_precoce?.premier_retour?.or_ideal || 0,
             priority_items: data.data?.ordre_items?.phase_precoce?.premier_retour?.items_prioritaires?.map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              description: item.description,
+              id: item.id || '',
+              name: item.name || '',
+              description: item.description || '',
               imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
-              reason: item.raison
+              reason: item.raison || ''
             })) || [],
             variations: {
               ahead: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.avance || '',
@@ -245,30 +288,30 @@ export async function generateBuildRecommendation(
         mid_phase: {
           mythic_timing: data.data?.ordre_items?.phase_mid?.timing_mythique || '',
           core_items: data.data?.ordre_items?.phase_mid?.items_core?.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description,
+            id: item.id || '',
+            name: item.name || '',
+            description: item.description || '',
             imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
-            reason: item.raison
+            reason: item.raison || ''
           })) || [],
           objectives_focus: data.data?.ordre_items?.phase_mid?.focus_objectifs || '',
           team_adaptations: data.data?.ordre_items?.phase_mid?.adaptations_equipe || ''
         },
         late_phase: {
           final_build: data.data?.ordre_items?.phase_fin?.build_final?.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description,
+            id: item.id || '',
+            name: item.name || '',
+            description: item.description || '',
             imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
-            reason: item.raison
+            reason: item.raison || ''
           })) || [],
           situational_choices: data.data?.ordre_items?.phase_fin?.choix_situationnels?.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description,
+            id: item.id || '',
+            name: item.name || '',
+            description: item.description || '',
             imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
-            when: item.quand,
-            instead_of: item.remplace
+            when: item.quand || '',
+            instead_of: item.remplace || ''
           })) || [],
           win_condition_items: data.data?.ordre_items?.phase_fin?.items_condition_victoire || ''
         }
@@ -276,6 +319,6 @@ export async function generateBuildRecommendation(
     };
   } catch (error) {
     console.error('Erreur de recommandation de build:', error);
-    throw error;
+    throw error instanceof Error ? error : new Error('Une erreur inattendue est survenue');
   }
 }
