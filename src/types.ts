@@ -35,8 +35,97 @@ export interface Rune {
   name: string;
   imageUrl: string;
   description: string;
-  type: 'keystone' | 'primary' | 'secondary';
-  path: 'precision' | 'domination' | 'sorcery' | 'resolve' | 'inspiration';
+  type?: 'keystone' | 'primary' | 'secondary';
+  path?: 'precision' | 'domination' | 'sorcery' | 'resolve' | 'inspiration';
+}
+
+export interface BuildRecommendation {
+  items: Item[];
+  runes: Rune[];
+  explanation: string;
+  forChampion?: Champion;
+  forRole?: Role;
+  strategy: {
+    early_game?: {
+      approach?: string;
+      power_spikes?: string[];
+      trading_pattern?: string;
+    };
+    mid_game?: {
+      approach?: string;
+      role_in_team?: string;
+    };
+    late_game?: {
+      approach?: string;
+      win_condition?: string;
+    };
+  };
+  team_analysis: {
+    ally_strengths?: string[];
+    enemy_threats?: string[];
+    damage_distribution?: {
+      allied?: string;
+      enemy?: string;
+    };
+  };
+  build_order?: {
+    starting_phase?: {
+      items: Array<{
+        id: string;
+        name: string;
+        reason: string;
+      }>;
+      timing: string;
+      adaptations: {
+        matchup_specific: string;
+        team_comp: string;
+      };
+    };
+    early_phase?: {
+      first_back: {
+        ideal_gold: number;
+        priority_items: Array<{
+          id: string;
+          name: string;
+          reason: string;
+        }>;
+        variations: {
+          ahead: string;
+          even: string;
+          behind: string;
+        };
+      };
+      core_progression: Array<{
+        id: string;
+        name: string;
+        timing: string;
+        reason: string;
+      }>;
+    };
+    mid_phase?: {
+      mythic_timing: string;
+      core_items: Array<{
+        id: string;
+        name: string;
+        reason: string;
+      }>;
+      objectives_focus: string;
+      team_adaptations: string;
+    };
+    late_phase?: {
+      final_build: Array<{
+        id: string;
+        name: string;
+        reason: string;
+      }>;
+      situational_choices: Array<{
+        id: string;
+        name: string;
+        when: string;
+      }>;
+      win_condition_items: string;
+    };
+  };
 }
 
 export interface ChampionStats {
@@ -66,75 +155,4 @@ export interface BuildFeedback {
   success: boolean;
   playerName: string;
   timestamp: number;
-}
-
-export interface BuildRecommendation {
-  items: Item[];
-  runes: Rune[];
-  explanation: string;
-  forChampion?: Champion;
-  forRole?: Role;
-  strategy: {
-    early_game?: {
-      approach?: string;
-      power_spikes?: string[];
-      objectives?: string[];
-      trading_pattern?: string;
-    };
-    mid_game?: {
-      approach?: string;
-      power_spikes?: string[];
-      objectives?: string[];
-      role_in_team?: string;
-    };
-    late_game?: {
-      approach?: string;
-      team_fighting?: string;
-      win_condition?: string;
-    };
-  };
-  team_analysis: {
-    ally_strengths?: string[];
-    enemy_threats?: string[];
-    damage_distribution?: {
-      allied?: string;
-      enemy?: string;
-    };
-  };
-  build_order?: {
-    starting_phase?: {
-      items: Array<Item & { reason: string }>;
-      timing: string;
-      adaptations: {
-        matchup_specific: string;
-        team_comp: string;
-      };
-    };
-    early_phase?: {
-      first_back: {
-        ideal_gold: number;
-        priority_items: Array<Item & { reason: string }>;
-        variations: {
-          ahead: string;
-          even: string;
-          behind: string;
-        };
-      };
-      core_progression: Array<Item & { reason: string; timing?: string }>;
-    };
-    mid_phase?: {
-      mythic_timing: string;
-      core_items: Array<Item & { reason: string }>;
-      objectives_focus: string;
-      team_adaptations: string;
-    };
-    late_phase?: {
-      final_build: Array<Item & { reason: string }>;
-      situational_choices: Array<{
-        item: Item;
-        when: string;
-      }>;
-      win_condition_items: string;
-    };
-  };
 }
