@@ -1,20 +1,9 @@
 import React from 'react';
-import { Sword, Shield, Sparkles, Clock, ArrowRight, Target, Crosshair, Zap, Flame, Copy, Check } from 'lucide-react';
+import { Sword, Shield, Sparkles, Clock, ArrowRight, Target, Crosshair, Zap, Flame, Copy, Check, DollarSign, AlertTriangle } from 'lucide-react';
 import type { BuildRecommendation as BuildRecommendationType } from '../types';
 import { RoleIcon } from './RoleIcon';
 import { ItemIcon } from './ItemIcon';
 import { useTranslation } from 'react-i18next';
-
-// Helpers
-const hasContent = (arr?: any[]): boolean => Array.isArray(arr) && arr.length > 0;
-
-const getRuneImage = (runeId: string): string => {
-  return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/${runeId}.png`;
-};
-
-const getRunePathImage = (path: string): string => {
-  return `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/${path.toLowerCase()}.png`;
-};
 
 interface BuildRecommendationProps {
   recommendation: BuildRecommendationType | null;
@@ -67,6 +56,24 @@ ${recommendation.explanation}
     { id: 'runes' as const, label: t('build.runes'), icon: <Shield className="h-4 w-4" /> },
     { id: 'strategy' as const, label: t('build.strategy'), icon: <Sparkles className="h-4 w-4" /> }
   ];
+
+  const renderPhaseItems = (items: any[], showReason = false) => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {items.map((item, index) => (
+        <div key={`${item.id}-${index}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+          <div className="flex items-start gap-3">
+            <ItemIcon item={item} size={48} showTooltip={true} />
+            <div>
+              <h4 className="text-[#C8AA6E] font-semibold">{item.name}</h4>
+              {showReason && item.reason && (
+                <p className="text-sm text-[#F0E6D2]/70 mt-1">{item.reason}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="panel panel-accent animated-bg space-y-6">
@@ -132,160 +139,105 @@ ${recommendation.explanation}
       {/* Content based on active tab */}
       <div className="mt-4">
         {/* Items tab */}
-        {activeTab === 'items' && hasContent(recommendation.items) && (
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
+        {activeTab === 'items' && (
+          <div className="space-y-8">
+            {/* Starting items */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-[#C8AA6E]" />
-                <h3 className="section-title">{t('build.buildOrder')}</h3>
+                <h3 className="text-lg font-bold text-[#C8AA6E]">Objets de départ</h3>
+                {recommendation.build_order.starting_phase.timing && (
+                  <span className="text-sm text-[#F0E6D2]/70">({recommendation.build_order.starting_phase.timing})</span>
+                )}
               </div>
-              <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gold scrollbar-track-dark">
-                {recommendation.items.map((item, index) => (
-                  <div key={`${item.id}-${index}`} className="flex-shrink-0">
-                    <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors w-[200px]">
-                      <div className="flex items-center gap-4">
-                        <div className="flex-shrink-0">
-                          <ItemIcon item={item} index={index} showTooltip={true} />
-                        </div>
-                        <div className="flex-grow min-w-0">
-                          <h4 className="text-[#C8AA6E] font-semibold truncate">{item.name}</h4>
-                          <p className="text-[#F0E6D2]/80 text-sm mt-1 line-clamp-2">{item.description}</p>
-                          {typeof item.gold === 'number' && item.gold > 0 && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <img 
-                                src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-game-data/global/default/assets/items/goldicon.png"
-                                alt="gold"
-                                className="w-4 h-4"
-                              />
-                              <span className="text-[#C8AA6E]">{item.gold}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {index < recommendation.items.length - 1 && (
-                      <div className="flex items-center justify-center mx-2">
-                        <ArrowRight className="h-6 w-6 text-[#0AC8B9]" />
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {renderPhaseItems(recommendation.build_order.starting_phase.items, true)}
+              
+              {/* Adaptations */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                  <h4 className="text-[#C8AA6E] font-semibold mb-2">Adaptations selon le matchup</h4>
+                  <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.starting_phase.adaptations.matchup_specific}</p>
+                </div>
+                <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                  <h4 className="text-[#C8AA6E] font-semibold mb-2">Adaptations selon la composition</h4>
+                  <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.starting_phase.adaptations.team_comp}</p>
+                </div>
               </div>
             </div>
 
-            {/* Build phases */}
-            {recommendation.build_order && (
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Starting items */}
-                {recommendation.build_order.starting_phase?.items && hasContent(recommendation.build_order.starting_phase.items) && (
-                  <div className="bg-[#1E2328]/80 rounded-lg p-4 border border-[#785A28]">
-                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Objets de départ</h4>
-                    <div className="space-y-2">
-                      {recommendation.build_order.starting_phase.items.map((item, idx) => (
-                        <div key={`start-${idx}`} className="flex items-center gap-2">
-                          <ItemIcon item={{ id: item.id, name: item.name }} size={32} />
-                          <span className="text-sm text-[#F0E6D2]">{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
+            {/* First back items */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-[#C8AA6E]" />
+                <h3 className="text-lg font-bold text-[#C8AA6E]">Premier retour</h3>
+                <span className="text-sm text-[#F0E6D2]/70">
+                  (Or idéal: {recommendation.build_order.early_phase.first_back.ideal_gold} gold)
+                </span>
+              </div>
+              {renderPhaseItems(recommendation.build_order.early_phase.first_back.priority_items, true)}
+              
+              {/* Variations */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                {recommendation.build_order.early_phase.first_back.variations.ahead && (
+                  <div className="bg-[#0AC8B9]/10 p-4 rounded-lg border border-[#0AC8B9]/30">
+                    <h4 className="text-[#0AC8B9] font-semibold mb-2">Si en avance</h4>
+                    <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.early_phase.first_back.variations.ahead}</p>
                   </div>
                 )}
-
-                {/* Early game items */}
-                {recommendation.build_order.early_phase?.first_back.priority_items && hasContent(recommendation.build_order.early_phase.first_back.priority_items) && (
-                  <div className="bg-[#1E2328]/80 rounded-lg p-4 border border-[#785A28]">
-                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Premier retour</h4>
-                    <div className="space-y-2">
-                      {recommendation.build_order.early_phase.first_back.priority_items.map((item, idx) => (
-                        <div key={`early-${idx}`} className="flex items-center gap-2">
-                          <ItemIcon item={{ id: item.id, name: item.name }} size={32} />
-                          <span className="text-sm text-[#F0E6D2]">{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
+                {recommendation.build_order.early_phase.first_back.variations.even && (
+                  <div className="bg-[#785A28]/10 p-4 rounded-lg border border-[#785A28]/30">
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Si égalité</h4>
+                    <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.early_phase.first_back.variations.even}</p>
                   </div>
                 )}
-
-                {/* Mid game items */}
-                {recommendation.build_order.mid_phase?.core_items && hasContent(recommendation.build_order.mid_phase.core_items) && (
-                  <div className="bg-[#1E2328]/80 rounded-lg p-4 border border-[#785A28]">
-                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Objets principaux</h4>
-                    <div className="space-y-2">
-                      {recommendation.build_order.mid_phase.core_items.map((item, idx) => (
-                        <div key={`mid-${idx}`} className="flex items-center gap-2">
-                          <ItemIcon item={{ id: item.id, name: item.name }} size={32} />
-                          <span className="text-sm text-[#F0E6D2]">{item.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Late game items */}
-                {recommendation.build_order.late_phase?.situational_choices && hasContent(recommendation.build_order.late_phase.situational_choices) && (
-                  <div className="bg-[#1E2328]/80 rounded-lg p-4 border border-[#785A28]">
-                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Objets situationnels</h4>
-                    <div className="space-y-2">
-                      {recommendation.build_order.late_phase.situational_choices.map((item, idx) => (
-                        <div key={`late-${idx}`} className="flex items-center gap-2">
-                          <ItemIcon item={{ id: item.id, name: item.name }} size={32} />
-                          <div className="flex-1">
-                            <span className="text-sm text-[#F0E6D2] block">{item.name}</span>
-                            <span className="text-xs text-[#F0E6D2]/60">{item.when}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                {recommendation.build_order.early_phase.first_back.variations.behind && (
+                  <div className="bg-[#FF4655]/10 p-4 rounded-lg border border-[#FF4655]/30">
+                    <h4 className="text-[#FF4655] font-semibold mb-2">Si en retard</h4>
+                    <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.early_phase.first_back.variations.behind}</p>
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        )}
+            </div>
 
-        {/* Runes tab */}
-        {activeTab === 'runes' && hasContent(recommendation.runes) && (
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="h-5 w-5 text-[#C8AA6E]" />
-                <h3 className="section-title">{t('build.runes')}</h3>
+            {/* Core items */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Sword className="h-5 w-5 text-[#C8AA6E]" />
+                <h3 className="text-lg font-bold text-[#C8AA6E]">Objets principaux</h3>
+                {recommendation.build_order.mid_phase.mythic_timing && (
+                  <span className="text-sm text-[#F0E6D2]/70">(Mythique: {recommendation.build_order.mid_phase.mythic_timing})</span>
+                )}
+              </div>
+              {renderPhaseItems(recommendation.build_order.mid_phase.core_items, true)}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                  <h4 className="text-[#C8AA6E] font-semibold mb-2">Focus sur les objectifs</h4>
+                  <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.mid_phase.objectives_focus}</p>
+                </div>
+                <div className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                  <h4 className="text-[#C8AA6E] font-semibold mb-2">Adaptations d'équipe</h4>
+                  <p className="text-[#F0E6D2]/80 text-sm">{recommendation.build_order.mid_phase.team_adaptations}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Situational items */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-[#C8AA6E]" />
+                <h3 className="text-lg font-bold text-[#C8AA6E]">Objets situationnels</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recommendation.runes.map((rune, index) => (
-                  <div key={`${rune.id}-${index}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30 hover:border-[#C8AA6E]/30 transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-16 h-16 bg-[#091428]/50 rounded-lg p-2">
-                        <img 
-                          src={getRuneImage(rune.id)}
-                          alt={rune.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/runesicon.png';
-                          }}
-                        />
-                      </div>
+                {recommendation.build_order.late_phase.situational_choices.map((item, index) => (
+                  <div key={`${item.id}-${index}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                    <div className="flex items-start gap-3">
+                      <ItemIcon item={item} size={48} showTooltip={true} />
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-[#C8AA6E] font-semibold text-lg">{rune.name}</h4>
-                          {rune.type === 'keystone' && (
-                            <span className="px-2 py-0.5 bg-[#0AC8B9]/20 text-[#0AC8B9] text-xs rounded-full">
-                              {t('build.runeTypes.keystone')}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[#F0E6D2]/80 mt-2 text-sm">{rune.description}</p>
-                        {rune.path && (
-                          <div className="mt-2 flex items-center gap-1">
-                            <img 
-                              src={getRunePathImage(rune.path)}
-                              alt={rune.path}
-                              className="w-4 h-4"
-                            />
-                            <span className="text-xs text-[#C8AA6E] capitalize">
-                              {t(`build.runePaths.${rune.path.toLowerCase()}`)}
-                            </span>
-                          </div>
+                        <h4 className="text-[#C8AA6E] font-semibold">{item.name}</h4>
+                        <p className="text-sm text-[#F0E6D2]/70 mt-1">Quand: {item.when}</p>
+                        {item.instead_of && (
+                          <p className="text-sm text-[#FF4655]/70 mt-1">Remplace: {item.instead_of}</p>
                         )}
                       </div>
                     </div>
@@ -296,18 +248,97 @@ ${recommendation.explanation}
           </div>
         )}
 
+        {/* Runes tab */}
+        {activeTab === 'runes' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {recommendation.runes.map((rune, index) => (
+                <div key={`${rune.id}-${index}`} className="bg-[#1E2328]/50 p-4 rounded-lg border border-[#785A28]/30">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-16 h-16 bg-[#091428]/50 rounded-lg p-2">
+                      <img 
+                        src={rune.imageUrl}
+                        alt={rune.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-[#C8AA6E] font-semibold text-lg">{rune.name}</h4>
+                        {rune.type === 'keystone' && (
+                          <span className="px-2 py-0.5 bg-[#0AC8B9]/20 text-[#0AC8B9] text-xs rounded-full">
+                            Pierre angulaire
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[#F0E6D2]/80 mt-2 text-sm">{rune.description}</p>
+                      {rune.path && (
+                        <div className="mt-2 flex items-center gap-1">
+                          <img 
+                            src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/${rune.path.toLowerCase()}.png`}
+                            alt={rune.path}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-xs text-[#C8AA6E] capitalize">{rune.path}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Strategy tab */}
-        {activeTab === 'strategy' && recommendation.explanation && (
+        {activeTab === 'strategy' && (
           <div className="space-y-8">
             {/* Team Analysis */}
             <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
               <div className="flex items-center gap-2 mb-4">
                 <Target className="h-5 w-5 text-[#C8AA6E]" />
-                <h3 className="text-xl font-bold text-[#C8AA6E]">{t('build.teamAnalysis.title')}</h3>
+                <h3 className="text-xl font-bold text-[#C8AA6E]">Analyse d'équipe</h3>
               </div>
-              <div className="prose prose-invert max-w-none">
-                <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                  {recommendation.explanation}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-[#0AC8B9] font-semibold mb-2">Forces alliées</h4>
+                  <ul className="space-y-2">
+                    {recommendation.team_analysis.ally_strengths.map((strength, index) => (
+                      <li key={index} className="flex items-center gap-2 text-[#F0E6D2]/90">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#0AC8B9]"></div>
+                        {strength}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="text-[#FF4655] font-semibold mb-2">Menaces ennemies</h4>
+                  <ul className="space-y-2">
+                    {recommendation.team_analysis.enemy_threats.map((threat, index) => (
+                      <li key={index} className="flex items-center gap-2 text-[#F0E6D2]/90">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF4655]"></div>
+                        {threat}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <h4 className="text-[#C8AA6E] font-semibold mb-2">Distribution des dégâts</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[#1E2328]/50 p-3 rounded-lg">
+                    <p className="text-[#F0E6D2]/90">
+                      <span className="text-[#0AC8B9] font-semibold">Équipe alliée:</span> {recommendation.team_analysis.damage_distribution.allied}
+                    </p>
+                  </div>
+                  <div className="bg-[#1E2328]/50 p-3 rounded-lg">
+                    <p className="text-[#F0E6D2]/90">
+                      <span className="text-[#FF4655] font-semibold">Équipe ennemie:</span> {recommendation.team_analysis.damage_distribution.enemy}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -315,49 +346,69 @@ ${recommendation.explanation}
             {/* Game Phases */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Early Game */}
-              {recommendation.strategy.early_game?.approach && (
-                <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Flame className="h-5 w-5 text-[#FF4655]" />
-                    <h3 className="text-xl font-bold text-[#FF4655]">{t('build.phases.early')}</h3>
+              <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
+                <div className="flex items-center gap-2 mb-4">
+                  <Flame className="h-5 w-5 text-[#FF4655]" />
+                  <h3 className="text-xl font-bold text-[#FF4655]">Début de partie</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Approche</h4>
+                    <p className="text-[#F0E6D2]/90">{recommendation.strategy.early_game.approach}</p>
                   </div>
-                  <div className="prose prose-invert max-w-none">
-                    <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                      {recommendation.strategy.early_game.approach}
-                    </div>
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Pattern de trade</h4>
+                    <p className="text-[#F0E6D2]/90">{recommendation.strategy.early_game.trading_pattern}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Pics de puissance</h4>
+                    <ul className="space-y-1">
+                      {recommendation.strategy.early_game.power_spikes.map((spike, index) => (
+                        <li key={index} className="flex items-center gap-2 text-[#F0E6D2]/90">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF4655]"></div>
+                          {spike}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* Mid Game */}
-              {recommendation.strategy.mid_game?.approach && (
-                <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
-                    <h3 className="text-xl font-bold text-[#0AC8B9]">{t('build.phases.mid')}</h3>
+              <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
+                <div className="flex items-center gap-2 mb-4">
+                  <Crosshair className="h-5 w-5 text-[#0AC8B9]" />
+                  <h3 className="text-xl font-bold text-[#0AC8B9]">Milieu de partie</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Approche</h4>
+                    <p className="text-[#F0E6D2]/90">{recommendation.strategy.mid_game.approach}</p>
                   </div>
-                  <div className="prose prose-invert max-w-none">
-                    <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                      {recommendation.strategy.mid_game.approach}
-                    </div>
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Rôle en équipe</h4>
+                    <p className="text-[#F0E6D2]/90">{recommendation.strategy.mid_game.role_in_team}</p>
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* Late Game */}
-              {recommendation.strategy.late_game?.approach && (
-                <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Zap className="h-5 w-5 text-[#C8AA6E]" />
-                    <h3 className="text-xl font-bold text-[#C8AA6E]">{t('build.phases.late')}</h3>
+              <div className="bg-[#1E2328]/80 rounded-lg p-6 border border-[#785A28]">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="h-5 w-5 text-[#C8AA6E]" />
+                  <h3 className="text-xl font-bold text-[#C8AA6E]">Fin de partie</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Approche</h4>
+                    <p className="text-[#F0E6D2]/90">{recommendation.strategy.late_game.approach}</p>
                   </div>
-                  <div className="prose prose-invert max-w-none">
-                    <div className="whitespace-pre-line text-[#F0E6D2]/90 leading-relaxed">
-                      {recommendation.strategy.late_game.approach}
-                    </div>
+                  <div>
+                    <h4 className="text-[#C8AA6E] font-semibold mb-2">Condition de victoire</h4>
+                    <p className="text-[#F0E6D2]/90">{recommendation.strategy.late_game.win_condition}</p>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         )}

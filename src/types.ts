@@ -18,9 +18,9 @@ export interface Item {
   imageUrl: string;
   localImageUrl?: string;
   description: string;
-  gold?: number; // Made optional to fix ItemIcon errors
-  stats?: Record<string, number>; // Made optional to fix ItemIcon errors
-  tags?: string[]; // Made optional to fix ItemIcon errors
+  gold?: number;
+  stats?: Record<string, number>;
+  tags?: string[];
   mythic?: boolean;
   boots?: boolean;
 }
@@ -50,40 +50,40 @@ export interface BuildRecommendation {
   forRole?: Role;
   strategy: BuildStrategy;
   team_analysis: TeamAnalysis;
-  build_order?: BuildOrder; // Made optional to fix BuildRecommendation errors
+  build_order: BuildOrder;
 }
 
 export interface BuildStrategy {
-  early_game?: {
-    approach?: string;
+  early_game: {
+    approach: string;
+    power_spikes: string[];
+    objectives?: string[];
+    trading_pattern: string;
+  };
+  mid_game: {
+    approach: string;
     power_spikes?: string[];
     objectives?: string[];
-    trading_pattern?: string;
+    role_in_team: string;
   };
-  mid_game?: {
-    approach?: string;
-    power_spikes?: string[];
-    objectives?: string[];
-    role_in_team?: string;
-  };
-  late_game?: {
-    approach?: string;
+  late_game: {
+    approach: string;
     team_fighting?: string;
-    win_condition?: string;
+    win_condition: string;
   };
 }
 
 export interface TeamAnalysis {
-  ally_strengths?: string[];
-  enemy_threats?: string[];
-  damage_distribution?: {
-    allied?: string;
-    enemy?: string;
+  ally_strengths: string[];
+  enemy_threats: string[];
+  damage_distribution: {
+    allied: string;
+    enemy: string;
   };
 }
 
 export interface BuildOrder {
-  starting_phase?: {
+  starting_phase: {
     items: BuildPhaseItem[];
     timing: string;
     adaptations: {
@@ -91,7 +91,7 @@ export interface BuildOrder {
       team_comp: string;
     };
   };
-  early_phase?: {
+  early_phase: {
     first_back: {
       ideal_gold: number;
       priority_items: BuildPhaseItem[];
@@ -103,13 +103,13 @@ export interface BuildOrder {
     };
     core_progression: string[];
   };
-  mid_phase?: {
+  mid_phase: {
     mythic_timing: string;
     core_items: BuildPhaseItem[];
     objectives_focus: string;
     team_adaptations: string;
   };
-  late_phase?: {
+  late_phase: {
     final_build: BuildPhaseItem[];
     situational_choices: SituationalItem[];
     win_condition_items: string;

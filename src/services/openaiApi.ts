@@ -62,14 +62,17 @@ Structure JSON requise:
       "id": "string",
       "name": "string",
       "description": "string",
-      "gold": number
+      "gold": number,
+      "mythic": boolean
     }
   ],
   "runes": [
     {
       "id": "string",
       "name": "string",
-      "description": "string"
+      "description": "string",
+      "type": "keystone" | "primary" | "secondary",
+      "path": "precision" | "domination" | "sorcery" | "resolve" | "inspiration"
     }
   ],
   "strategie": {
@@ -93,6 +96,75 @@ Structure JSON requise:
     "profil_degats": {
       "allies": "string",
       "ennemis": "string"
+    }
+  },
+  "ordre_items": {
+    "phase_depart": {
+      "items": [
+        {
+          "id": "string",
+          "name": "string",
+          "description": "string",
+          "raison": "string"
+        }
+      ],
+      "timing": "string",
+      "adaptations": {
+        "matchup": "string",
+        "composition": "string"
+      }
+    },
+    "phase_precoce": {
+      "premier_retour": {
+        "or_ideal": number,
+        "items_prioritaires": [
+          {
+            "id": "string",
+            "name": "string",
+            "description": "string",
+            "raison": "string"
+          }
+        ],
+        "variations": {
+          "avance": "string",
+          "egal": "string",
+          "retard": "string"
+        }
+      },
+      "progression_core": ["string"]
+    },
+    "phase_mid": {
+      "timing_mythique": "string",
+      "items_core": [
+        {
+          "id": "string",
+          "name": "string",
+          "description": "string",
+          "raison": "string"
+        }
+      ],
+      "focus_objectifs": "string",
+      "adaptations_equipe": "string"
+    },
+    "phase_fin": {
+      "build_final": [
+        {
+          "id": "string",
+          "name": "string",
+          "description": "string",
+          "raison": "string"
+        }
+      ],
+      "choix_situationnels": [
+        {
+          "id": "string",
+          "name": "string",
+          "description": "string",
+          "quand": "string",
+          "remplace": "string"
+        }
+      ],
+      "items_condition_victoire": "string"
     }
   }
 }
@@ -219,6 +291,70 @@ export async function generateBuildRecommendation(
         damage_distribution: {
           allied: data.data?.analyse_equipe?.profil_degats?.allies || '',
           enemy: data.data?.analyse_equipe?.profil_degats?.ennemis || ''
+        }
+      },
+      build_order: {
+        starting_phase: {
+          items: data.data?.ordre_items?.phase_depart?.items?.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
+            reason: item.raison
+          })) || [],
+          timing: data.data?.ordre_items?.phase_depart?.timing || '',
+          adaptations: {
+            matchup_specific: data.data?.ordre_items?.phase_depart?.adaptations?.matchup || '',
+            team_comp: data.data?.ordre_items?.phase_depart?.adaptations?.composition || ''
+          }
+        },
+        early_phase: {
+          first_back: {
+            ideal_gold: data.data?.ordre_items?.phase_precoce?.premier_retour?.or_ideal || 0,
+            priority_items: data.data?.ordre_items?.phase_precoce?.premier_retour?.items_prioritaires?.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              description: item.description,
+              imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
+              reason: item.raison
+            })) || [],
+            variations: {
+              ahead: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.avance,
+              even: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.egal,
+              behind: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.retard
+            }
+          },
+          core_progression: data.data?.ordre_items?.phase_precoce?.progression_core || []
+        },
+        mid_phase: {
+          mythic_timing: data.data?.ordre_items?.phase_mid?.timing_mythique || '',
+          core_items: data.data?.ordre_items?.phase_mid?.items_core?.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
+            reason: item.raison
+          })) || [],
+          objectives_focus: data.data?.ordre_items?.phase_mid?.focus_objectifs || '',
+          team_adaptations: data.data?.ordre_items?.phase_mid?.adaptations_equipe || ''
+        },
+        late_phase: {
+          final_build: data.data?.ordre_items?.phase_fin?.build_final?.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
+            reason: item.raison
+          })) || [],
+          situational_choices: data.data?.ordre_items?.phase_fin?.choix_situationnels?.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            imageUrl: `https://ddragon.leagueoflegends.com/cdn/${import.meta.env.VITE_DDRAGON_VERSION}/img/item/${item.id}.png`,
+            when: item.quand,
+            instead_of: item.remplace
+          })) || [],
+          win_condition_items: data.data?.ordre_items?.phase_fin?.items_condition_victoire || ''
         }
       }
     };
