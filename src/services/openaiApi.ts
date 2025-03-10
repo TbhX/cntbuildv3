@@ -217,7 +217,7 @@ export async function generateBuildRecommendation(
 
     const data = await response.json() as ApiResponse<any>;
 
-    if (!data.success) {
+    if (!data.success || !data.data) {
       throw new Error(data.error || "Erreur lors de la génération du build");
     }
 
@@ -319,9 +319,9 @@ export async function generateBuildRecommendation(
               reason: item.raison
             })) || [],
             variations: {
-              ahead: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.avance,
-              even: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.egal,
-              behind: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.retard
+              ahead: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.avance || '',
+              even: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.egal || '',
+              behind: data.data?.ordre_items?.phase_precoce?.premier_retour?.variations?.retard || ''
             }
           },
           core_progression: data.data?.ordre_items?.phase_precoce?.progression_core || []
