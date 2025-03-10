@@ -49,7 +49,7 @@ const FRENCH_PROMPT_TEMPLATE = (
   enemyComposition: string,
   version: string
 ): string => `
-Générez une recommandation de build League of Legends Saison 14 pour ${championName} (${role}) dans la version ${version}.
+Générez une recommandation de build League of Legends Saison 15 pour ${championName} (${role}) dans la version ${version}.
 
 Composition d'équipe:
 - Alliés: ${allyComposition}
