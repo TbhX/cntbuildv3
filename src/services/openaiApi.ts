@@ -1,6 +1,4 @@
 import type { BuildRecommendation, Champion, Role, ApiResponse } from '../types';
-import { SupportedLanguage } from '../components/LanguageSelector';
-import i18n from '../i18n';
 
 // Get the base API URL based on environment
 const getApiBaseUrl = () => {
@@ -10,10 +8,16 @@ const getApiBaseUrl = () => {
 // Helper to create full API URLs
 const apiUrl = (endpoint: string) => `${getApiBaseUrl()}${endpoint}`;
 
-// Add error handling and retry logic
+// Add error handling and retry logic with timeout
 const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, backoff = 300): Promise<Response> => {
+  const controller = new AbortController();
+  const timeout = 30000; // 30 seconds timeout
+  
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
   const fetchOptions = {
     ...options,
+    signal: controller.signal,
     headers: {
       ...options.headers,
       'Accept': 'application/json',
@@ -23,6 +27,7 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
 
   try {
     const response = await fetch(url, fetchOptions);
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -34,14 +39,22 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
       }
     }
     return response;
-  } catch (error) {
+  } catch (error: any) { // Type error as any to handle both Error and DOMException
+    clearTimeout(timeoutId);
+    
+    if (error.name === 'AbortError') {
+      throw new Error('La requête a pris trop de temps. Veuillez réessayer.');
+    }
+    
     if (retries <= 1) throw error;
+    
+    // Exponential backoff
     await new Promise(resolve => setTimeout(resolve, backoff));
     return fetchWithRetry(url, options, retries - 1, backoff * 2);
   }
 };
 
-// French prompt template
+// Simplified prompt template to reduce token count
 const FRENCH_PROMPT_TEMPLATE = (
   championName: string,
   role: string,
@@ -49,135 +62,38 @@ const FRENCH_PROMPT_TEMPLATE = (
   enemyComposition: string,
   version: string
 ): string => `
-Générez une recommandation de build League of Legends Saison 15 pour ${championName} (${role}) dans la version ${version}.
+Générez un build LoL S15 pour ${championName} (${role}), version ${version}.
 
-Composition d'équipe:
-- Alliés: ${allyComposition}
-- Ennemis: ${enemyComposition}
+Équipes :
+- Alliés : ${allyComposition}
+- Ennemis : ${enemyComposition}
 
-Structure JSON requise:
+Réponse JSON :
 {
-  "items": [
-    {
-      "id": "string",
-      "name": "string",
-      "description": "string",
-      "gold": number,
-      "mythic": boolean
-    }
-  ],
-  "runes": [
-    {
-      "id": "string",
-      "name": "string",
-      "description": "string",
-      "type": "keystone" | "primary" | "secondary",
-      "path": "precision" | "domination" | "sorcery" | "resolve" | "inspiration"
-    }
-  ],
+  "items": [{"id": "string", "name": "string"}],
+  "runes": [{"id": "string", "name": "string", "type": "keystone" | "primary" | "secondary"}],
   "strategie": {
-    "debut_partie": {
-      "approche": "string",
-      "pics_puissance": ["string"],
-      "pattern_trade": "string"
-    },
-    "milieu_partie": {
-      "approche": "string",
-      "role_equipe": "string"
-    },
-    "fin_partie": {
-      "approche": "string",
-      "condition_victoire": "string"
-    }
+    "early": {"approche": "string", "power_spikes": ["string"], "trading_pattern": "string"},
+    "mid": {"approche": "string", "role": "string"},
+    "late": {"approche": "string", "win_condition": "string"}
   },
   "analyse_equipe": {
-    "forces_allies": ["string"],
-    "menaces_ennemies": ["string"],
-    "profil_degats": {
-      "allies": "string",
-      "ennemis": "string"
-    }
+    "forces": ["string"],
+    "menaces": ["string"],
+    "profil_degats": {"allies": "string", "ennemis": "string"}
   },
   "ordre_items": {
-    "phase_depart": {
-      "items": [
-        {
-          "id": "string",
-          "name": "string",
-          "description": "string",
-          "raison": "string"
-        }
-      ],
-      "timing": "string",
-      "adaptations": {
-        "matchup": "string",
-        "composition": "string"
-      }
-    },
-    "phase_precoce": {
-      "premier_retour": {
-        "or_ideal": number,
-        "items_prioritaires": [
-          {
-            "id": "string",
-            "name": "string",
-            "description": "string",
-            "raison": "string"
-          }
-        ],
-        "variations": {
-          "avance": "string",
-          "egal": "string",
-          "retard": "string"
-        }
-      },
-      "progression_core": ["string"]
-    },
-    "phase_mid": {
-      "timing_mythique": "string",
-      "items_core": [
-        {
-          "id": "string",
-          "name": "string",
-          "description": "string",
-          "raison": "string"
-        }
-      ],
-      "focus_objectifs": "string",
-      "adaptations_equipe": "string"
-    },
-    "phase_fin": {
-      "build_final": [
-        {
-          "id": "string",
-          "name": "string",
-          "description": "string",
-          "raison": "string"
-        }
-      ],
-      "choix_situationnels": [
-        {
-          "id": "string",
-          "name": "string",
-          "description": "string",
-          "quand": "string",
-          "remplace": "string"
-        }
-      ],
-      "items_condition_victoire": "string"
-    }
+    "early": {"start_items": [{"id": "string", "raison": "string"}], "first_back": {"gold": number, "priorities": ["string"]}},
+    "mid": {"mythic_timing": "string", "core_items": [{"id": "string", "raison": "string"}]},
+    "late": {"final_build": ["string"], "situational": [{"id": "string", "when": "string", "replace": "string"}]}
   }
 }
 
-Directives:
-1. Concentrez-vous sur les changements d'objets de la Saison 14
-2. Tenez compte des synergies de composition d'équipe
-3. Adaptez l'ordre de construction selon les menaces ennemies
-4. Optimisez pour les exigences du rôle
-5. Incluez les objets principaux et situationnels
-
-Gardez les réponses concises et axées sur des conseils pratiques.
-Répondez en français.`;
+Instructions :
+1. Priorisez les changements de la S15.
+2. Tenez compte des synergies et menaces.
+3. Adaptez l'ordre des items au matchup.
+4. Répondez en JSON valide et en français.`;
 
 // Main build recommendation function
 export async function generateBuildRecommendation(
