@@ -3,7 +3,7 @@ import type { Item } from '../types';
 import { useTranslation } from 'react-i18next';
 
 interface ItemIconProps {
-  item: Item;
+  item: Partial<Item> & { id: string; name: string };
   size?: number;
   showTooltip?: boolean;
   index?: number;
@@ -22,6 +22,23 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
   const communityDragonUrl = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/${item.id}.png`;
   const fallbackUrl = '/assets/items/default-item.png';
 
+  // Construct a complete item object with default values
+  const completeItem: Item = {
+    id: item.id,
+    name: item.name,
+    imageUrl: item.imageUrl || ddragonUrl,
+    description: item.description || '',
+    gold: item.gold || 0, // Default to 0 if not provided
+    stats: item.stats || {}, // Default to empty object
+    tags: item.tags || [], // Default to empty array
+    mythic: item.mythic || false
+  };
+
+  // Helper function to check if an object has properties
+  const hasProperties = (obj: Record<string, any>): boolean => {
+    return Object.keys(obj).length > 0;
+  };
+
   return (
     <div 
       className="relative group"
@@ -34,13 +51,13 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
             {index + 1}
           </div>
         )}
-        {item.mythic && (
+        {completeItem.mythic && (
           <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full z-10 shadow-glow" />
         )}
         <div className="relative w-full aspect-square">
           <img
             src={imageError ? communityDragonUrl : ddragonUrl}
-            alt={item.name}
+            alt={completeItem.name}
             style={{ width: size, height: size }}
             className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105"
             onError={(e) => {
@@ -54,7 +71,7 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#091428]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
         </div>
-        <p className="text-center mt-2 text-sm text-[#F0E6D2] font-semibold truncate">{item.name}</p>
+        <p className="text-center mt-2 text-sm text-[#F0E6D2] font-semibold truncate">{completeItem.name}</p>
       </div>
       
       {showTooltip && showDetails && (
@@ -63,7 +80,7 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
             <div className="w-6 h-6 flex-shrink-0">
               <img
                 src={imageError ? communityDragonUrl : ddragonUrl}
-                alt={item.name}
+                alt={completeItem.name}
                 className="w-full h-full object-contain rounded"
                 onError={(e) => {
                   if (!imageError) {
@@ -76,8 +93,8 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
               />
             </div>
             <h4 className="text-[#C8AA6E] font-semibold flex items-center gap-2">
-              {item.name}
-              {item.mythic && (
+              {completeItem.name}
+              {completeItem.mythic && (
                 <span className="text-xs px-2 py-0.5 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#091428] rounded-full font-bold">
                   {t('items.mythic')}
                 </span>
@@ -87,10 +104,10 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
           
           <div 
             className="text-[#F0E6D2] text-sm prose prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: item.description }}
+            dangerouslySetInnerHTML={{ __html: completeItem.description }}
           />
           
-          {item.gold && (
+          {completeItem.gold > 0 && (
             <div className="mt-2 text-[#C8AA6E] text-sm flex items-center gap-2">
               <span>{t('items.cost')}:</span>
               <span className="flex items-center gap-1">
@@ -99,14 +116,14 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
                   alt="gold"
                   className="w-4 h-4"
                 />
-                {item.gold}
+                {completeItem.gold}
               </span>
             </div>
           )}
           
-          {item.tags && item.tags.length > 0 && (
+          {completeItem.tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {item.tags.map(tag => (
+              {completeItem.tags.map(tag => (
                 <span 
                   key={tag}
                   className="text-xs px-2 py-0.5 bg-[#785A28]/30 rounded-full text-[#C8AA6E]"
@@ -117,11 +134,11 @@ export function ItemIcon({ item, size = 64, showTooltip = true, index }: ItemIco
             </div>
           )}
           
-          {item.stats && Object.keys(item.stats).length > 0 && (
+          {hasProperties(completeItem.stats) && (
             <div className="mt-2 border-t border-[#785A28]/50 pt-2">
               <h5 className="text-[#C8AA6E] text-sm font-semibold mb-1">{t('items.stats')}:</h5>
               <div className="grid grid-cols-2 gap-1">
-                {Object.entries(item.stats).map(([stat, value]) => (
+                {Object.entries(completeItem.stats).map(([stat, value]) => (
                   <div key={stat} className="text-xs text-[#F0E6D2]/80">
                     {t(`items.stats.${stat.toLowerCase()}`)} {value}
                   </div>
