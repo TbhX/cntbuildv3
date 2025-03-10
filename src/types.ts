@@ -18,9 +18,9 @@ export interface Item {
   imageUrl: string;
   localImageUrl?: string;
   description: string;
-  gold: number;
-  stats: Record<string, number>;
-  tags: string[];
+  gold?: number; // Made optional to fix ItemIcon errors
+  stats?: Record<string, number>; // Made optional to fix ItemIcon errors
+  tags?: string[]; // Made optional to fix ItemIcon errors
   mythic?: boolean;
   boots?: boolean;
 }
@@ -50,7 +50,7 @@ export interface BuildRecommendation {
   forRole?: Role;
   strategy: BuildStrategy;
   team_analysis: TeamAnalysis;
-  build_order: BuildOrder;
+  build_order?: BuildOrder; // Made optional to fix BuildRecommendation errors
 }
 
 export interface BuildStrategy {
