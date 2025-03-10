@@ -119,7 +119,7 @@ export interface BuildOrder {
 export interface BuildPhaseItem {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   imageUrl: string;
   reason?: string;
 }
@@ -170,7 +170,7 @@ export interface Team {
 
 // API response types
 export interface ApiResponse<T> {
-  success: boolean;
+  success?: boolean;
   data?: T;
   error?: string;
   meta?: {
